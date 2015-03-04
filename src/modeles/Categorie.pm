@@ -1,31 +1,23 @@
 #!/usr/bin/env perl
 
-package Produit;
+package Categorie;
 use strict;
 
 sub newfull {
-    my($classe, $nom, $desc, $cat, $prix, $photo) = @_;
+    my ($classe, $nom) = @_;
     my $this = {
 	"id" => -1,
-	"nom" => $nom,
-	"desc" => $desc,
-	"cat" => $cat,
-	"prix" => $prix,
-	"photo" => $photo
+	"nom" => $nom
     };
     bless($this, $classe);
     return $this;
 }
 
 sub newid {
-    my($classe, $id) = @_;
+    my ($classe, $id) = @_;
     my $this = {
 	"id" => $id,
-	"nom" => "",
-	"desc" => "",
-	"cat" => -1,
-	"prix" => "",
-	"photo" => ""
+	"nom" => ""
     };
     bless($this, $classe);
     $this->load($id);
