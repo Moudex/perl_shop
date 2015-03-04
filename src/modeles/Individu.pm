@@ -5,49 +5,47 @@
 package Individu;
 use strict;
 
+# Constructeur
 sub newfull {
-    my($classe, $nom, $prenom, $email, $password) = @_;
+    my($classe, $id, $nom, $prenom, $email, $password) = @_;
     my $this = {
-	"id" => -1,
-	"nom" => $nom,
-	"prenom" => $prenom,
-	"email" => $email,
-	"password" => $password
+	"id" => $id,		    # Id
+	"nom" => $nom,		    # Nom
+	"prenom" => $prenom,	    # Prenom
+	"email" => $email,	    # Email
+	"password" => $password	    # Password
     };
     bless($this, $classe);
     return $this;
 }
 
-sub newid {
-    my($classe, $id) = @_;
-    my $this = {
-	"id" => $id,
-	"nom" => "",
-	"prenom" => "",
-	"email" => "",
-	"password" => ""
-    };
-    bless($this, $classe);
-    $this->load($id);
-    return $this;
-}
-
+# Charge l'individu depuis la BDD
 sub load {
     my ($this, $id) = @_;
+    if ($id eq "") {
+	die 'UndefinedId';
+    }
 
     # TODO Liaison avec la bdd
 }
 
+# Enregistre l'individu en BDD
 sub store {
     my ($this) = @_;
 
     # TODO Liaison avec la bdd
 }
 
+
+# Supprime l'individu de la BDD
 sub delete {
     my ($this) = @_;
-
+    if ($this->{id} eq "") {
+	die 'UndefinedId';
+    }
+    
     # TODO Liaison avec la bdd
+    # Supprimer également le client ou admin, commandes, et produits commandés
 }
 
 1;
