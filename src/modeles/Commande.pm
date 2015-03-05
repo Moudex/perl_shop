@@ -19,17 +19,18 @@ sub new {
 
 # Constructeur multiple
 sub many {
-    my ($class) = @_;
+    my $class = shift @_;
     my $this = {
 	"commandes" => []	# Tableau d'objets Commande
     };
     bless($this, $class);
+    $this->add(@_);
     return $this;
 }
 
-# Ajoute une commande à la liste
+# Ajoute des commandes à la liste
 sub add {
-    my ($this) = shift @_;
+    my $this = shift @_;
     if ($this->{commandes} == undef) { die 'NotCommandeList'; }
     else {
 	foreach (@_) {

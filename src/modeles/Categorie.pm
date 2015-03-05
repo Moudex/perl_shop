@@ -16,17 +16,18 @@ sub new {
 
 # Constructeur multiple
 sub many {
-    my ($class) = @_;
+    my $class = shift @_;
     my $this = {
 	"cats" => []	# Tableau d'objets Categorie
     };
     bless($this, $class);
+    $this->add(@_);
     return $this;
 }
 
-# Ajoute une catégorie à la liste
+# Ajoute des catégories à la liste
 sub add {
-    my ($this) = shift @_;
+    my $this = shift @_;
     if ($this->{cats} == undef) { die 'NotCategorieList'; }
     else {
 	foreach (@_) {

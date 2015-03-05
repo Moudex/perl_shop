@@ -18,17 +18,18 @@ sub new {
 
 # Constructeur multiple
 sub many {
-    my ($class) = @_;
+    my $class = shift @_;
     my $this = {
 	"prodsComs" => []    # Tableau de produits commandés
     };
     bless($this, $class);
+    $this->add(@_);
     return $this;
 }
 
-# Ajoute un produit commandé à la liste
+# Ajoute des produits commandés à la liste
 sub add {
-    my ($this) =shift @_;
+    my $this = shift @_;
     if ($this->{prodsComs} == undef) { die 'NotProdComList'; }
     else {
 	foreach (@_) {
@@ -39,7 +40,7 @@ sub add {
 
 # représentation textuelle
 sub toString {
-    my ($this) =@_;
+    my ($this) = @_;
     if ($this->{prodsComs} == undef) {
 	return "[ProduitCommande: $this->{id}, $this->{produit}, $this->{commande}, $this->{quantitee}]";
     } else {

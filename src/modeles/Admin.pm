@@ -16,17 +16,18 @@ sub new {
 
 # Constructeur multiple
 sub many {
-    my ($class) = @_;
+    my $class = shift @_;
     my $this = {
 	"admins" => []	    # Tableau d'objets Admin
     };
     bless($this, $class);
+    $this->add(@_);
     return $this;
 }
 
-# Ajoute un admin à la liste
+# Ajoute des admins à la liste
 sub add {
-    my ($this) = shift @_;
+    my $this = shift @_;
     if ($this->{admins} == undef) { die 'NotAdminList'; }
     else {
 	foreach (@_) {

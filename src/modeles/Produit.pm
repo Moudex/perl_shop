@@ -20,7 +20,7 @@ sub new {
 
 # Constructeur multiple
 sub many {
-    my ($class) = @_;
+    my $class = shift @_;
     my $this = {
 	"produits" => []    # Tableau d'objets Produit
     };
@@ -28,9 +28,9 @@ sub many {
     return $this;
 }
 
-# Ajoute un produit à la liste
+# Ajoute des produits à la liste
 sub add {
-    my ($this) = shift @_;
+    my $this = shift @_;
     if ($this->{produits} == undef) { die 'NotProduitList'; }
     else {
 	foreach (@_) {
