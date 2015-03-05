@@ -3,9 +3,9 @@
 package Produit;
 use strict;
 
-# Constructeur
+# Constructeur unique
 sub new {
-    my($classe, $id, $nom, $desc, $cat, $prix, $photo) = @_;
+    my($class, $id, $nom, $desc, $cat, $prix, $photo) = @_;
     my $this = {
 	"id" => $id,	    # Id
 	"nom" => $nom,	    # Nom
@@ -14,21 +14,54 @@ sub new {
 	"prix" => $prix,    # Prix
 	"photo" => $photo   # Uri photo
     };
-    bless($this, $classe);
+    bless($this, $class);
     return $this;
+}
+
+# Constructeur multiple
+sub many {
+    my ($class) = @_;
+    my $this = {
+	"produits" => []    # Tableau d'objets Produit
+    };
+    bless($this, $class);
+    return $this;
+}
+
+# Ajoute un produit à la liste
+sub add {
+    my ($this) = shift @_;
+    if ($this->{produits} == undef) { die 'NotProduitList'; }
+    else {
+	foreach (@_) {
+	    push @{$this->{produits}}, $_;
+	}
+    }
+}
+
+# Représentation textuelle
+sub toString {
+    my ($this) = @_;
+    if ($this->{produits} == undef) {
+	return "[Produit: $this->{id}, $this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo}]";
+    } else {
+	my $out = '[Produits: ';
+	$out .= join(', ', map({$_->toString()} @{$this->{produits}}));
+	return $out . ']';
+    }
 }
 
 # Charge le produit depuis la BDD
 sub load {
     my ($this, $id) = @_;
-    if ($id eq "") {
+    if ($id == undef) {
 	die 'UndefinedId';
     }
 
     # TODO Liaison avec la BDD
 }
 
-# Enregistre le produit en BDD
+# Enregistre le ou les produit en BDD
 sub store {
     my ($this) = @_;
 

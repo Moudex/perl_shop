@@ -6,8 +6,8 @@ package Individu;
 use strict;
 
 # Constructeur
-sub newfull {
-    my($classe, $id, $nom, $prenom, $email, $password) = @_;
+sub new {
+    my($class, $id, $nom, $prenom, $email, $password) = @_;
     my $this = {
 	"id" => $id,		    # Id
 	"nom" => $nom,		    # Nom
@@ -15,8 +15,14 @@ sub newfull {
 	"email" => $email,	    # Email
 	"password" => $password	    # Password
     };
-    bless($this, $classe);
+    bless($this, $class);
     return $this;
+}
+
+# Représentation textuelle
+sub toString {
+    my ($this) = @_;
+    return "[Individu: $this->{id}, $this->{nom}, $this->{prenom}, $this->{email}]";
 }
 
 # Charge l'individu depuis la BDD

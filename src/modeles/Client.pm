@@ -5,28 +5,61 @@ use strict;
 use Individu;
 our @ISA = ("Individu");
 
-# Constructeur
+# Constructeur unique
 sub new {
-    my ($classe, $id, $nom, $prenom, $email, $password, $adresse, $datenaiss, $civi) = @_;
-    my $this = SUPER::newfull($id, $nom, $prenom, $email, $password);
+    my ($class, $id, $nom, $prenom, $email, $password, $adresse, $datenaiss, $civi) = @_;
+    my $this = $class->SUPER::new($id, $nom, $prenom, $email, $password);
     $this->{adresse} = $adresse;	# Adresse
     $this->{datenaiss} = $datenaiss;	# Date de naissance
     $this->{civi} = $civi;		# Civilitée
-    bless($this, $classe);
+    bless($this, $class);
     return $this;
+}
+
+# Constructeur multiple
+sub many {
+    my ($class) = @_;
+    my $this = {
+	"clients" => []
+    };
+    bless($this, $class);
+    return $this;
+}
+
+# Ajoute un client à la liste
+sub add {
+    my ($this) = shift @_;
+    if ($this->{clients} == undef) { die 'NotClientList'; }
+    else {
+	foreach (@_) {
+	    push @{$this->{clients}}, $_;
+	}
+    }
+}
+
+# Représentation textuelle
+sub toString {
+    my ($this) = @_;
+    if ($this->{clients} == undef) {
+	return "[Client: ".$this->SUPER::toString().", $this->{adresse}, $this->{datenaiss}, $this->{civi}]";
+    } else {
+	my $out = '[Clients: ';
+	$out .= join(', ', map({$_->toString()} @{$this->{clients}}));
+	return $out .']';
+    }
 }
 
 # Charge le client depuis la BDD
 sub load {
     my ($this, $id) = @_;
-    if ($id eq "") {
+    if ($id == undef) {
 	die 'UndefinedId';
     }
 
     # TODO Liaison avec la bdd
 }
 
-# Enregistre le client en BDD
+# Enregistre du ou des client en BDD
 sub store {
     my ($this) = @_;
 
