@@ -2,15 +2,19 @@
 
 package Categorie;
 use strict;
+use Modele;
+our @ISA = ("Modele");
+
+our $tableName = 'Categorie';
 
 # Constructeur unique
 sub new {
     my ($class, $id, $nom) = @_;
-    my $this = {
-	"id" => $id,	# Id
-	"nom" => $nom	# Nom de la catégorie
-    };
+    my $this = $class->Modele::new();
+    $this->{id} = $id;	    # Id
+    $this->{nom} = $nom;    # Nom de la catégorie
     bless($this, $class);
+    if ($id ne "") { $this->load($id); }
     return $this;
 }
 
@@ -23,6 +27,12 @@ sub many {
     bless($this, $class);
     $this->add(@_);
     return $this;
+}
+
+# Destructeur
+sub DESTROY {
+    my ($this) = @_;
+    $this->Modele::DESTROY();
 }
 
 # Ajoute des catégories à la liste
@@ -54,15 +64,30 @@ sub load {
     if ($id == undef) {
 	die 'UndefinedId';
     }
-
-    # TODO Liaison avec la bdd
+    my $res = $this->Modele::getOne($tableName, $id);
+    $this->{id} = @$res[0];
+    $this->{nom} = @$res[1];
 }
 
 # Enregistre la ou les catégorie en BDD
 sub store {
     my ($this) = @_;
-
-    # TODO Liaison avec la bdd
+    if ($this->{categories} == undef) {
+	my $sf_tn = $this->{dbh}->quote_identifier($tableName);
+	my $sth;
+	if ($this->{id} eq "") { # Création
+	    $this->{id} = $this->nextId($tableName);
+	    $sth = $this->{dbh}->prepare("INSERT INTO $sf_tn VALUES (?,?)");
+	    $sth->execute($this->{id}, $this->{nom});
+	} else { # Modification
+	    $sth = $this->{dbh}->prepare("UPDATE $sf_tn SET Nom=? WHERE Id=?");
+	    $sth->execute($this->{nom}, $this->{id});
+	}
+	$sth->finish();
+	$this->{dbh}->commit();
+    } else {
+	return -1;
+    }
 }
 
 # Supprime la catégorie de la BDD
@@ -73,6 +98,25 @@ sub delete {
     }
 
     # TODO Liaison avec la bdd
+}
+
+# Crée la table
+sub createTable {
+    my ($class) = @_;
+    my $mod = Modele->new();
+    my $sf_tn = $mod->{dbh}->quote_identifier($tableName);
+    $mod->dropTable($tableName);
+    my $sth = $mod->{dbh}->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Nom text NOT NULL)");
+    $sth->execute();
+    $sth->finish();
+    $mod->{dbh}->commit();
+}
+
+# Supprime la table
+sub dropTable {
+    my ($class) = @_;
+    my $mod = Modele->new();
+    $mod->dropTable($tableName);
 }
 
 1;

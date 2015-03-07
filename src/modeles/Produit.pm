@@ -2,19 +2,23 @@
 
 package Produit;
 use strict;
+use Modele;
+our @ISA = ("Modele");
+
+our $tableName = 'Produit';
 
 # Constructeur unique
 sub new {
     my($class, $id, $nom, $desc, $cat, $prix, $photo) = @_;
-    my $this = {
-	"id" => $id,	    # Id
-	"nom" => $nom,	    # Nom
-	"desc" => $desc,    # Description
-	"cat" => $cat,	    # Catégorie
-	"prix" => $prix,    # Prix
-	"photo" => $photo   # Uri photo
-    };
+    my $this = $class->Modele::new();
+    $this->{id} = $id;	    # Id
+    $this->{nom} = $nom;    # Nom
+    $this->{desc} = $desc;  # Description
+    $this->{cat} = $cat;    # Catégorie
+    $this->{prix} = $prix;  # Prix
+    $this->{photo} = $photo;# Uri photo
     bless($this, $class);
+    if ($id ne "") { $this->load($id); }
     return $this;
 }
 
@@ -26,6 +30,12 @@ sub many {
     };
     bless($this, $class);
     return $this;
+}
+
+# Destructeur
+sub DESTROY {
+    my ($this) =@_;
+    $this->Modele::DESTROY();
 }
 
 # Ajoute des produits à la liste
@@ -54,18 +64,37 @@ sub toString {
 # Charge le produit depuis la BDD
 sub load {
     my ($this, $id) = @_;
-    if ($id == undef) {
+    if ($id eq "") {
 	die 'UndefinedId';
     }
-
-    # TODO Liaison avec la BDD
+    my $res = $this->Modele::getOne($tableName, $id);
+    $this->{id} = @$res[0];
+    $this->{nom} = @$res[1];
+    $this->{desc} = @$res[2];
+    $this->{cat} = @$res[3];
+    $this->{prix} = @$res[4];
+    $this->{photo} = @$res[5];
 }
 
 # Enregistre le ou les produit en BDD
 sub store {
     my ($this) = @_;
-
-    # TODO Liaison avec la bdd
+    if ($this->{produits} == undef) {
+	my $sf_tn = $this->{dbh}->quote_identifier($tableName);
+	my $sth;
+	if ($this->{id} eq "") { # Création
+	    $this->{id} = $this->nextId($tableName);
+	    $sth = $this->{dbh}->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?,?,?)");
+	    $sth->execute($this->{id}, $this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo});
+	} else { # Modification
+	    $sth = $this->{dbh}->prepare("UPDATE $sf_tn SET Nom=?, Desc=?, Cat=?, Prix=?, Photo=? WHERE Id=?");
+	    $sth->execute($this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo});
+	}
+	$sth->finish();
+	$this->{dbh}->commit();
+    } else {
+	return -1;
+    }
 }
 
 # Supprime le produit de la BDD
@@ -76,6 +105,25 @@ sub delete {
     }
 
     # TODO Liaison avec la bdd
+}
+
+# Crée la table
+sub createTable {
+    my ($class) = @_;
+    my $mod = Modele->new();
+    my $sf_tn = $mod->{dbh}->quote_identifier($tableName);
+    $mod->dropTable($tableName);
+    my $sth = $mod->{dbh}->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Nom text NOT NULL, Desc text, Prix real NOT NULL, Photo text)");
+    $sth->execute();
+    $sth->finish();
+    $mod->{mod}->commit();
+}
+
+# Supprime la table
+sub dropTable {
+    my ($class) = @_;
+    my $mod = Modele->new();
+    $mod->dropTable($tableName);
 }
 
 1;
