@@ -9,15 +9,18 @@ our $tableName = 'Commande';
 
 # Constructeur unique
 sub new {
-    my ($class, $id, $client, $dateC, $dateE, $dateP) = @_;
+    my $class = shift @_;
+    my $size = $#_+1;
     my $this = $class->Modele::new();
-    $this->{id} = $id;		# Id
-    $this->{client} = $client;	# Num client
-    $this->{dateC} = $dateC;	# Date de la commande
-    $this->{dateE} = $dateE;	# Date d'envoi
-    $this->{dateP} = $dateP;	# Date de paiement
     bless($this, $class);
-    if ($id ne "") { $this->load($id); }
+    if ($size > 1) {
+	$this->{client} = shift @_;	# Num client
+	$this->{dateC} = shift @_;	# Date de la commande
+	$this->{dateE} = shift @_;	# Date d'envoi
+	$this->{dateP} = shift @_;	# Date de paiement
+    } else {
+	$this->load(shift @_);
+    }
     return $this;
 }
 
@@ -64,7 +67,7 @@ sub toString {
 # Charge la commande depuis la BDD
 sub load {
     my ($this, $id) = @_;
-    if ($id eq "") {
+    if ($id eq undef) {
 	die 'UndefinedId';
 	return -1;
     }
@@ -82,7 +85,7 @@ sub store {
     if ($this->{commandes} == undef) {
 	my $sf_tn = $this->{dbh}->quote_identifier($tableName);
 	my $sth;
-	if ($this->{id} eq "") { # Création
+	if ($this->{id} eq undef) { # Création
 	    $this->{id} = $this->nextId($tableName);
 	    $sth = $this->{dbh}->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?,?)");
 	    $sth->execute($this->{id}, $this->{client}, $this->{dateC}, $this->{dateE}, $this->{dateP});
@@ -100,7 +103,7 @@ sub store {
 # Supprime la commande de la BDD
 sub delete {
     my ($this) = @_;
-    if ($this->{id} eq "") {
+    if ($this->{id} eq undef) {
 	die 'UndefinedId';
     }
 
@@ -114,7 +117,7 @@ sub createTable {
     my $mod = Modele->new();
     my $sf_tn = $mod->{dbh}->quote_identifier($tableName);
     $mod->dropTable($tableName);
-    my $sth = $mod->{dbh}->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Client integer NOT NULL, DateC date NOT NULL, DateE date, DateP date)");
+    my $sth = $mod->{dbh}->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Client integer NOT NULL, DateC date NOT NULL, DateE date, DateP date, FOREIGN KEY(Client) REFERENCES Client(Id))");
     $sth->execute();
     $sth->finish();
     $mod->{dbh}->commit();

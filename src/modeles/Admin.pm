@@ -10,11 +10,16 @@ our $tableName = 'Admin';
 
 # Constructeur unique
 sub new {
-    my ($class, $id, $nom, $prenom, $email, $password, $role) = @_;
-    my $this = $class->Individu::new($id, $nom, $prenom, $email, $password);
-    $this->{role} = $role;  # Role de l'administrateur
+    my $class = shift @_;
+    my $size = $#_+1;
+    my $this = $class->Individu::new(@_);
     bless($this, $class);
-    if ($id ne "") { $this->load($id); }
+    if ($size > 1) {
+	for(my $i=0; $i<4; $i++) { shift @_; }
+	$this->{role} = shift @_;  # Role de l'administrateur
+    } else {
+	$this->load(shift @_);
+    }
     return $this;
 }
 
@@ -61,7 +66,7 @@ sub toString {
 # Charge l'admin depuis la BDD
 sub load {
     my ($this, $id) = @_;
-    if ($id == undef) {
+    if ($id eq undef) {
 	die 'UndefinedId';
 	return -1;
     }
@@ -77,7 +82,7 @@ sub store {
     if ($this->{admins} == undef) {
 	my $sf_tn = $this->{dbh}->quote_identifier($tableName);
 	my $sth;
-	if ($this->{id} eq "") { # Création
+	if ($this->{id} eq undef) { # Création
 	    $this->Individu::store();
 	    $sth = $this->{dbh}->prepare("INSERT INTO $sf_tn VALUES (?,?)");
 	    $sth->execute($this->{id}, $this->{role});
@@ -97,7 +102,7 @@ sub store {
 # Supprime l'admin de la BDD
 sub delete {
     my ($this) = @_;
-    if ($this->{id} eq "") {
+    if ($this->{id} eq undef) {
 	die 'UndefinedId';
     }
 

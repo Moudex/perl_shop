@@ -9,16 +9,19 @@ our $tableName = 'Produit';
 
 # Constructeur unique
 sub new {
-    my($class, $id, $nom, $desc, $cat, $prix, $photo) = @_;
+    my $class = shift @_;
+    my $size = $#_+1;
     my $this = $class->Modele::new();
-    $this->{id} = $id;	    # Id
-    $this->{nom} = $nom;    # Nom
-    $this->{desc} = $desc;  # Description
-    $this->{cat} = $cat;    # Catégorie
-    $this->{prix} = $prix;  # Prix
-    $this->{photo} = $photo;# Uri photo
     bless($this, $class);
-    if ($id ne "") { $this->load($id); }
+    if ($size > 1) {
+	$this->{nom} = shift @_;    # Nom
+	$this->{desc} = shift @_;   # Description
+	$this->{cat} = shift @_;    # Catégorie
+	$this->{prix} = shift @_;   # Prix
+	$this->{photo} = shift @_;  # Uri photo
+    } else {
+	$this->load(shift @_);
+    }
     return $this;
 }
 
@@ -64,7 +67,7 @@ sub toString {
 # Charge le produit depuis la BDD
 sub load {
     my ($this, $id) = @_;
-    if ($id eq "") {
+    if ($id eq undef) {
 	die 'UndefinedId';
     }
     my $res = $this->Modele::getOne($tableName, $id);
@@ -82,13 +85,13 @@ sub store {
     if ($this->{produits} == undef) {
 	my $sf_tn = $this->{dbh}->quote_identifier($tableName);
 	my $sth;
-	if ($this->{id} eq "") { # Création
+	if ($this->{id} eq undef) { # Création
 	    $this->{id} = $this->nextId($tableName);
 	    $sth = $this->{dbh}->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?,?,?)");
 	    $sth->execute($this->{id}, $this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo});
 	} else { # Modification
 	    $sth = $this->{dbh}->prepare("UPDATE $sf_tn SET Nom=?, Desc=?, Cat=?, Prix=?, Photo=? WHERE Id=?");
-	    $sth->execute($this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo});
+	    $sth->execute($this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo}, $this->{id});
 	}
 	$sth->finish();
 	$this->{dbh}->commit();
@@ -100,7 +103,7 @@ sub store {
 # Supprime le produit de la BDD
 sub delete {
     my ($this) = @_;
-    if ($this->{id} eq "") {
+    if ($this->{id} eq undef) {
 	die 'UndefinedId';
     }
 
@@ -113,10 +116,10 @@ sub createTable {
     my $mod = Modele->new();
     my $sf_tn = $mod->{dbh}->quote_identifier($tableName);
     $mod->dropTable($tableName);
-    my $sth = $mod->{dbh}->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Nom text NOT NULL, Desc text, Prix real NOT NULL, Photo text)");
+    my $sth = $mod->{dbh}->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Nom text NOT NULL, Desc text, Cat integer NOT NULL, Prix real NOT NULL, Photo text, FOREIGN KEY(Cat) REFERENCES Categorie(Id))");
     $sth->execute();
     $sth->finish();
-    $mod->{mod}->commit();
+    $mod->{dbh}->commit();
 }
 
 # Supprime la table

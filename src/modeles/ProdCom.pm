@@ -9,14 +9,17 @@ our $tableName = 'ProdCom';
 
 # Constructeur unique
 sub new {
-    my ($class, $id, $produit, $commande, $quantitee) = @_;
+    my $class = shift @_;
+    my $size = $#_+1;
     my $this = $class->Modele::new();
-    $this->{id} = $id;		    # Id
-    $this->{produit} = $produit;    # Num produit
-    $this->{commande} = $commande;  # Num commande
-    $this->{quantitee} = $quantitee;# Quantitée
     bless($this, $class);
-    if ($id ne "") { $this->load($id); }
+    if ($size > 1) {
+	$this->{produit} = shift @_;    # Num produit#}
+	$this->{commande} = shift @_;	# Num commande
+	$this->{quantitee} = shift @_;	# Quantitée
+    } else {
+	$this->load(shift @_);
+    }
     return $this;
 }
 
@@ -63,7 +66,7 @@ sub toString {
 # Charge le produit commandé depuis la BDD
 sub load {
     my ($this, $id) = @_;
-    if ($id eq "") {
+    if ($id eq undef) {
 	die 'UndefinedId';
     }
     my $res = $this->Modele::getOne($tableName, $id);
@@ -79,7 +82,7 @@ sub store {
     if ($this->{ProdsComs} == undef) {
 	my $sf_tn = $this->{dbh}->quote_identifier($tableName);
 	my $sth;
-	if ($this->{id} eq "") { # Création
+	if ($this->{id} eq undef) { # Création
 	    $this->{id} = $this->nextId($tableName);
 	    $sth = $this->{dbh}->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?)");
 	    $sth->execute($this->{id}, $this->{produit}, $this->{commande}, $this->{quantitee});
@@ -97,7 +100,7 @@ sub store {
 # Supprime le produit commandé de la BDD
 sub delete {
     my ($this) = @_;
-    if ($this->{id} eq "") {
+    if ($this->{id} eq undef) {
 	die 'UndefinedId';
     }
 
@@ -110,7 +113,7 @@ sub createTable {
     my $mod = Modele->new();
     my $sf_tn = $mod->{dbh}->quote_identifier($tableName);
     $mod->dropTable($tableName);
-    my $sth = $mod->{dbh}->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Produit inteeger NOT NULL, Commande integer NOT NULL, Quantitee integer default 1)");
+    my $sth = $mod->{dbh}->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Produit integer NOT NULL, Commande integer NOT NULL, Quantitee integer default 1, FOREIGN KEY(Produit) REFERENCES Produit(Id), FOREIGN KEY(Commande) REFERENCES Commande(Id))");
     $sth->execute();
     $sth->finish();
     $mod->{dbh}->commit();

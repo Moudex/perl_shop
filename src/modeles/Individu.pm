@@ -9,15 +9,18 @@ our $tableName = 'Individu';
 
 # Constructeur
 sub new {
-    my($class, $id, $nom, $prenom, $email, $password) = @_;
+    my $class = shift @_;
+    my $size = $#_+1;
     my $this = $class->Modele::new();
-    $this->{id} = $id;		    # Id
-    $this->{nom} = $nom;	    # Nom
-    $this->{prenom} = $prenom;	    # Prenom
-    $this->{email} = $email;	    # Email
-    $this->{password} = $password;   # Password
     bless($this, $class);
-    if ($id ne "") { $this->load($id); }
+    if ($#_ > 1 ) {
+	$this->{nom} = shift @_;	# Nom
+	$this->{prenom} = shift @_;	# Prenom
+	$this->{email} = shift @_;	# Email
+	$this->{password} = shift @_;   # Password
+    } else {
+	$this->load(shift @_);
+    }
     return $this;
 }
 
@@ -36,7 +39,7 @@ sub toString {
 # Charge l'individu depuis la BDD
 sub load {
     my ($this, $id) = @_;
-    if ($id eq "") {
+    if ($id eq undef) {
 	die 'UndefinedId';
 	return -1;
     }
@@ -53,7 +56,7 @@ sub store {
     my ($this) = @_;
     my $sf_tn = $this->{dbh}->quote_identifier($tableName);
     my $sth;
-    if ($this->{id} eq "") { # Création
+    if ($this->{id} eq undef) { # Création
 	$this->{id} = $this->nextId($tableName);
 	$sth = $this->{dbh}->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?,?)");
 	$sth->execute($this->{id}, $this->{nom}, $this->{prenom}, $this->{email}, $this->{password});
@@ -68,7 +71,7 @@ sub store {
 # Supprime l'individu de la BDD
 sub delete {
     my ($this) = @_;
-    if ($this->{id} eq "") {
+    if ($this->{id} eq undef) {
 	die 'UndefinedId';
     }
     

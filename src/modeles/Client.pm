@@ -10,13 +10,18 @@ our $tableName = 'Client';
 
 # Constructeur unique
 sub new {
-    my ($class, $id, $nom, $prenom, $email, $password, $adresse, $datenaiss, $civi) = @_;
-    my $this = $class->Individu::new($id, $nom, $prenom, $email, $password);
-    $this->{adresse} = $adresse;	# Adresse
-    $this->{datenaiss} = $datenaiss;	# Date de naissance
-    $this->{civi} = $civi;		# Civilitée
+    my $class = shift @_;
+    my $size = $#_+1;
+    my $this = $class->Individu::new(@_);
     bless($this, $class);
-    if ($id ne "") { $this->load($id); }
+    if ($size > 1) {
+	for(my $i=0; $i<4; $i++) { shift @_; }
+	$this->{adresse} = shift @_;	# Adresse
+	$this->{datenaiss} = shift @_;	# Date de naissance
+	$this->{civi} = shift @_;	# Civilitée
+    } else {
+	$this->load(shift @_);
+    }
     return $this;
 }
 
@@ -63,7 +68,7 @@ sub toString {
 # Charge le client depuis la BDD
 sub load {
     my ($this, $id) = @_;
-    if ($id eq "") {
+    if ($id eq undef) {
 	die 'UndefinedId';
 	return -1;
     }
@@ -81,7 +86,7 @@ sub store {
     if ($this->{clients} == undef) {
 	my $sf_tn = $this->{dbh}->quote_identifier($tableName);
 	my $sth;
-	if ($this->{id} eq "") { # Création
+	if ($this->{id} eq undef) { # Création
 	    $this->Individu::store();
 	    $sth = $this->{dbh}->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?)");
 	    $sth->execute($this->{id}, $this->{adresse}, $this->{datenaiss}, $this->{civi});
@@ -101,7 +106,7 @@ sub store {
 # Supprime le client de la BDD
 sub delete {
     my ($this) = @_;
-    if ($this->{id} eq "") {
+    if ($this->{id} eq undef) {
 	die 'UndefinedId';
     }
 

@@ -50,7 +50,7 @@ sub dropTable {
 sub nextId {
     my ($this, $tableName) = @_;
     my $sf_tn = $this->{dbh}->quote_identifier($tableName);
-    my $sth = $this->{dbh}->prepare("SELECT max(Id) FROM $sf_tn");
+    my $sth = $this->{dbh}->prepare("SELECT max(Id)+1 FROM $sf_tn");
     $sth->execute();
     my $res = $sth->fetchrow_arrayref();
     $sth->finish();
