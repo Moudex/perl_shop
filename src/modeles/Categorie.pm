@@ -3,7 +3,7 @@
 package Categorie;
 use strict;
 use Modele;
-our @ISA = ("Modele");
+use Connexion;
 
 our $tableName = 'Categorie';
 
@@ -11,7 +11,7 @@ our $tableName = 'Categorie';
 sub new {
     my $class = shift @_;
     my $size = $#_+1;
-    my $this = $class->Modele::new();
+    my $this = {};
     bless($this, $class);
     if ($size > 1) {
 	$this->{nom} = shift @_;    # Nom de la catégorie
@@ -31,12 +31,6 @@ sub many {
     bless($this, $class);
     $this->add(@_);
     return $this;
-}
-
-# Destructeur
-sub DESTROY {
-    my ($this) = @_;
-    $this->Modele::DESTROY();
 }
 
 # Ajoute des catégories à la liste
@@ -67,8 +61,9 @@ sub load {
     my ($this, $id) = @_;
     if ($id eq undef) {
 	die 'UndefinedId';
+	return -1;
     }
-    my $res = $this->Modele::getOne($tableName, $id);
+    my $res = Modele->load($tableName, $id);
     $this->{id} = @$res[0];
     $this->{nom} = @$res[1];
     $this->{parent} = @$res[2];
@@ -78,50 +73,49 @@ sub load {
 sub store {
     my ($this) = @_;
     if ($this->{categories} == undef) {
-	my $sf_tn = $this->{dbh}->quote_identifier($tableName);
+	my $dbh = Connexion->getDBH();
+	my $sf_tn = $dbh->quote_identifier($tableName);
 	my $sth;
 	if ($this->{id} eq undef) { # Création
-	    $this->{id} = $this->nextId($tableName);
-	    $sth = $this->{dbh}->prepare("INSERT INTO $sf_tn VALUES (?,?,?)");
+	    $this->{id} = Modele->nextId($tableName);
+	    $sth = $dbh->prepare("INSERT INTO $sf_tn VALUES (?,?,?)");
 	    $sth->execute($this->{id}, $this->{nom}, $this->{parent});
 	} else { # Modification
-	    $sth = $this->{dbh}->prepare("UPDATE $sf_tn SET Nom=?, Parent=? WHERE Id=?");
+	    $sth = $dbh->prepare("UPDATE $sf_tn SET Nom=?, Parent=? WHERE Id=?");
 	    $sth->execute($this->{nom}, $this->{parent}, $this->{id});
 	}
 	$sth->finish();
-	$this->{dbh}->commit();
+	$dbh->commit();
     } else {
 	return -1;
     }
 }
 
+
+###
+#   Methodes de classe
+###
+
 # Supprime la catégorie de la BDD
 sub delete {
-    my ($this) = @_;
-    if ($this->{id} eq undef) {
-	die 'UndefinedId';
-    }
-
-    # TODO Liaison avec la bdd
+    my ($class, $id) = @_;
+    Modele->remove($tableName, $id);
 }
 
 # Crée la table
 sub createTable {
-    my ($class) = @_;
-    my $mod = Modele->new();
-    my $sf_tn = $mod->{dbh}->quote_identifier($tableName);
-    $mod->dropTable($tableName);
-    my $sth = $mod->{dbh}->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Nom text NOT NULL, Parent integer)");
+    Modele->dropTable($tableName);
+    my $dbh = Connexion->getDBH();
+    my $sf_tn = $dbh->quote_identifier($tableName);
+    my $sth = $dbh->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Nom text NOT NULL, Parent integer)");
     $sth->execute();
     $sth->finish();
-    $mod->{dbh}->commit();
+    $dbh->commit();
 }
 
 # Supprime la table
 sub dropTable {
-    my ($class) = @_;
-    my $mod = Modele->new();
-    $mod->dropTable($tableName);
+    Modele->dropTable($tableName);
 }
 
 1;

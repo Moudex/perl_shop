@@ -3,7 +3,7 @@
 package Produit;
 use strict;
 use Modele;
-our @ISA = ("Modele");
+use Connexion;
 
 our $tableName = 'Produit';
 
@@ -11,7 +11,7 @@ our $tableName = 'Produit';
 sub new {
     my $class = shift @_;
     my $size = $#_+1;
-    my $this = $class->Modele::new();
+    my $this = {};
     bless($this, $class);
     if ($size > 1) {
 	$this->{nom} = shift @_;    # Nom
@@ -19,6 +19,7 @@ sub new {
 	$this->{cat} = shift @_;    # Catégorie
 	$this->{prix} = shift @_;   # Prix
 	$this->{photo} = shift @_;  # Uri photo
+	$this->{quantite} = shift @_; # Stock
     } else {
 	$this->load(shift @_);
     }
@@ -32,13 +33,8 @@ sub many {
 	"produits" => []    # Tableau d'objets Produit
     };
     bless($this, $class);
+    $this->add(@_);
     return $this;
-}
-
-# Destructeur
-sub DESTROY {
-    my ($this) =@_;
-    $this->Modele::DESTROY();
 }
 
 # Ajoute des produits à la liste
@@ -56,7 +52,7 @@ sub add {
 sub toString {
     my ($this) = @_;
     if ($this->{produits} == undef) {
-	return "[Produit: $this->{id}, $this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo}]";
+	return "[Produit: $this->{id}, $this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo}, $this->{quantite}]";
     } else {
 	my $out = '[Produits: ';
 	$out .= join(', ', map({$_->toString()} @{$this->{produits}}));
@@ -69,64 +65,64 @@ sub load {
     my ($this, $id) = @_;
     if ($id eq undef) {
 	die 'UndefinedId';
+	return -1;
     }
-    my $res = $this->Modele::getOne($tableName, $id);
+    my $res = Modele->load($tableName, $id);
     $this->{id} = @$res[0];
     $this->{nom} = @$res[1];
     $this->{desc} = @$res[2];
     $this->{cat} = @$res[3];
     $this->{prix} = @$res[4];
     $this->{photo} = @$res[5];
+    $this->{quantite} = @$res[6];
 }
 
 # Enregistre le ou les produit en BDD
 sub store {
     my ($this) = @_;
     if ($this->{produits} == undef) {
-	my $sf_tn = $this->{dbh}->quote_identifier($tableName);
+	my $dbh = Connexion->getDBH();
+	my $sf_tn = $dbh->quote_identifier($tableName);
 	my $sth;
 	if ($this->{id} eq undef) { # Création
-	    $this->{id} = $this->nextId($tableName);
-	    $sth = $this->{dbh}->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?,?,?)");
-	    $sth->execute($this->{id}, $this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo});
+	    $this->{id} = Modele->nextId($tableName);
+	    $sth = $dbh->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?,?,?,?)");
+	    $sth->execute($this->{id}, $this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo}, $this->{quantite});
 	} else { # Modification
-	    $sth = $this->{dbh}->prepare("UPDATE $sf_tn SET Nom=?, Desc=?, Cat=?, Prix=?, Photo=? WHERE Id=?");
-	    $sth->execute($this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo}, $this->{id});
+	    $sth = $dbh->prepare("UPDATE $sf_tn SET Nom=?, Desc=?, Cat=?, Prix=?, Photo=?, Quantite=? WHERE Id=?");
+	    $sth->execute($this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo}, $this->{quantite}, $this->{id});
 	}
 	$sth->finish();
-	$this->{dbh}->commit();
+	$dbh->commit();
     } else {
 	return -1;
     }
 }
 
-# Supprime le produit de la BDD
-sub delete {
-    my ($this) = @_;
-    if ($this->{id} eq undef) {
-	die 'UndefinedId';
-    }
+###
+#   Methodes de classe
+###
 
-    # TODO Liaison avec la bdd
+# Supprime le produit de la BDD
+sub remove {
+    my ($class, $id) = @_;
+    Modele->remove($tableName, $id);
 }
 
 # Crée la table
 sub createTable {
-    my ($class) = @_;
-    my $mod = Modele->new();
-    my $sf_tn = $mod->{dbh}->quote_identifier($tableName);
-    $mod->dropTable($tableName);
-    my $sth = $mod->{dbh}->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Nom text NOT NULL, Desc text, Cat integer NOT NULL, Prix real NOT NULL, Photo text, FOREIGN KEY(Cat) REFERENCES Categorie(Id))");
+    Modele->dropTable($tableName);
+    my $dbh = Connexion->getDBH();
+    my $sf_tn = $dbh->quote_identifier($tableName);
+    my $sth = $dbh->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Nom text NOT NULL, Desc text, Cat integer NOT NULL, Prix real NOT NULL, Photo text, Quantite integer DEFAULT 0, FOREIGN KEY(Cat) REFERENCES Categorie(Id))");
     $sth->execute();
     $sth->finish();
-    $mod->{dbh}->commit();
+    $dbh->commit();
 }
 
 # Supprime la table
 sub dropTable {
-    my ($class) = @_;
-    my $mod = Modele->new();
-    $mod->dropTable($tableName);
+    Modele->dropTable($tableName);
 }
 
 1;

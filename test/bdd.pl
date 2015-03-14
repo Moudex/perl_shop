@@ -54,7 +54,7 @@ my $cat2 = Categorie->new(0);
 print $cat2->toString() ."\n";
 
 print "\n### PRODUIT ###\n";
-my $prod0 = Produit->new('Ordinateur portable', 'Entrée de gamme', 0, 490.99, 'uriphoto');
+my $prod0 = Produit->new('Ordinateur portable', 'Entrée de gamme', 0, 490.99, 'uriphoto', 6);
 print $prod0->toString() ."\n";
 $prod0->store();
 my $prod1 = Produit->new(0);
@@ -72,6 +72,7 @@ $com1->{dateP} = '15/02/2015';
 $com1->store();
 my $com2 = Commande->new(0);
 print $com2->toString() ."\n";
+Commande->remove(0);
 
 print "\n### PRODUIT COMMANDE ###\n";
 my $pc0 = ProdCom->new(0, 0, 2);

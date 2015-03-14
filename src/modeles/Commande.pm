@@ -3,7 +3,7 @@
 package Commande;
 use strict;
 use Modele;
-our @ISA = ("Modele");
+use Connexion;
 
 our $tableName = 'Commande';
 
@@ -11,7 +11,7 @@ our $tableName = 'Commande';
 sub new {
     my $class = shift @_;
     my $size = $#_+1;
-    my $this = $class->Modele::new();
+    my $this = {};
     bless($this, $class);
     if ($size > 1) {
 	$this->{client} = shift @_;	# Num client
@@ -33,12 +33,6 @@ sub many {
     bless($this, $class);
     $this->add(@_);
     return $this;
-}
-
-# Destructeur
-sub DESTROY {
-    my ($this) = @_;
-    $this->Modele::DESTROY();
 }
 
 # Ajoute des commandes à la liste
@@ -71,7 +65,7 @@ sub load {
 	die 'UndefinedId';
 	return -1;
     }
-    my $res = $this->Modele::getOne($tableName, $id);
+    my $res = Modele->load($tableName, $id);
     $this->{id} = @$res[0];
     $this->{client} = @$res[1];
     $this->{dateC} = @$res[2];
@@ -83,51 +77,60 @@ sub load {
 sub store {
     my ($this) = @_;
     if ($this->{commandes} == undef) {
-	my $sf_tn = $this->{dbh}->quote_identifier($tableName);
+	my $dbh = Connexion->getDBH();
+	my $sf_tn = $dbh->quote_identifier($tableName);
 	my $sth;
 	if ($this->{id} eq undef) { # Création
-	    $this->{id} = $this->nextId($tableName);
-	    $sth = $this->{dbh}->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?,?)");
+	    $this->{id} = Modele->nextId($tableName);
+	    $sth = $dbh->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?,?)");
 	    $sth->execute($this->{id}, $this->{client}, $this->{dateC}, $this->{dateE}, $this->{dateP});
 	} else { # Modification
-	    $sth = $this->{dbh}->prepare("UPDATE $sf_tn SET Client=?, DateC=?, DateE=?, DateP=? WHERE Id=?");
+	    $sth = $dbh->prepare("UPDATE $sf_tn SET Client=?, DateC=?, DateE=?, DateP=? WHERE Id=?");
 	    $sth->execute($this->{client}, $this->{dateC}, $this->{dateE}, $this->{dateP}, $this->{id});
 	}
 	$sth->finish();
-	$this->{dbh}->commit();
+	$dbh->commit();
     } else {
 	return -1;
     }
 }
 
-# Supprime la commande de la BDD
-sub delete {
-    my ($this) = @_;
-    if ($this->{id} eq undef) {
-	die 'UndefinedId';
-    }
+###
+#   Méthodes de classe
+###
 
-    # TODO Liasion avec la BDD
-    # Supprimmer également tous les produits commandés
+# Supprime la commande de la BDD
+sub remove {
+    my ($class, $id) = @_;
+    ProdCom->remove_from_commande($id);
+    Modele->remove($tableName, $id);
+}
+
+# Supprime toutes les commandes du client
+sub remove_from_client {
+    my ($class, $id_client) = @_;
+    my $dbh = Connexion->getDBH();
+    my $sf_tn = $dbh->quote_identifier($tableName);
+    my $sth = $dbh->prepare("DELETE FROM $sf_tn WHERE Client=?");
+    $sth->execute($id_client);
+    $sth->finish();
+    $dbh->commit();
 }
 
 # Crée la table
 sub createTable {
-    my ($class) = @_;
-    my $mod = Modele->new();
-    my $sf_tn = $mod->{dbh}->quote_identifier($tableName);
-    $mod->dropTable($tableName);
-    my $sth = $mod->{dbh}->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Client integer NOT NULL, DateC date NOT NULL, DateE date, DateP date, FOREIGN KEY(Client) REFERENCES Client(Id))");
+    Modele->dropTable($tableName);
+    my $dbh = Connexion->getDBH();
+    my $sf_tn = $dbh->quote_identifier($tableName);
+    my $sth = $dbh->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Client integer NOT NULL, DateC date NOT NULL, DateE date, DateP date, FOREIGN KEY(Client) REFERENCES Client(Id))");
     $sth->execute();
     $sth->finish();
-    $mod->{dbh}->commit();
+    $dbh->commit();
 }
 
 # Supprime la table
 sub dropTable {
-    my ($class) = @_;
-    my $mod = Modele->new();
-    $mod->dropTable($tableName);
+    Modele->dropTable($tableName);
 }
 
 1;

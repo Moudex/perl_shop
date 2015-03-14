@@ -4,6 +4,7 @@ package Admin;
 use strict;
 use Modele;
 use Individu;
+use Connexion;
 our @ISA = ("Individu");
 
 our $tableName = 'Admin';
@@ -71,7 +72,7 @@ sub load {
 	return -1;
     }
     $this->Individu::load($id);
-    my $res = $this->Modele::getOne($tableName, $id);
+    my $res = Modele->load($tableName, $id);
     $this->{id} = @$res[0];
     $this->{role} = @$res[1];
 }
@@ -80,52 +81,52 @@ sub load {
 sub store {
     my ($this) = @_;
     if ($this->{admins} == undef) {
-	my $sf_tn = $this->{dbh}->quote_identifier($tableName);
+	my $dbh = Connexion->getDBH();
+	my $sf_tn = $dbh->quote_identifier($tableName);
 	my $sth;
 	if ($this->{id} eq undef) { # Création
 	    $this->Individu::store();
-	    $sth = $this->{dbh}->prepare("INSERT INTO $sf_tn VALUES (?,?)");
+	    $sth = $dbh->prepare("INSERT INTO $sf_tn VALUES (?,?)");
 	    $sth->execute($this->{id}, $this->{role});
 	} else { # Modification
 	    $this->Individu::store();
-	    $sth = $this->{dbh}->prepare("UPDATE $sf_tn SET Role=? WHERE Id=?");
+	    $sth = $dbh->prepare("UPDATE $sf_tn SET Role=? WHERE Id=?");
 	    $sth->execute($this->{role}, $this->{id});
 	}
 	$sth->finish();
-	$this->{dbh}->commit();
+	$dbh->commit();
     } else {
 	# Pas encore implémenté !
 	return -1;
     }
 }
 
-# Supprime l'admin de la BDD
-sub delete {
-    my ($this) = @_;
-    if ($this->{id} eq undef) {
-	die 'UndefinedId';
-    }
 
-    # TODO Liaison avec la bdd
+###
+#   Méthodes de classe
+###
+
+# Supprime l'admin de la BDD
+sub remove {
+    my ($class, $id) = @_;
+    Modele->remove($tableName, $id);
+    Individu->remove($id);
 }
 
 # Crée la table
 sub createTable {
-    my ($class) = @_;
-    my $mod = Modele->new();
-    my $sf_tn = $mod->{dbh}->quote_identifier($tableName);
-    $mod->dropTable($tableName);
-    my $sth = $mod->{dbh}->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Role text NOT NULL)");
+    Modele->dropTable($tableName);
+    my $dbh = Connexion->getDBH();
+    my $sf_tn = $dbh->quote_identifier($tableName);
+    my $sth = $dbh->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Role text NOT NULL)");
     $sth->execute();
     $sth->finish();
-    $mod->{dbh}->commit();
+    $dbh->commit();
 }
 
 # Supression de la table
 sub dropTable {
-    my ($class) = @_;
-    my $mod = Modele->new();
-    $mod->dropTable($tableName);
+    Modele->dropTable($tableName);
 }
 
 1;
