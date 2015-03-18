@@ -3,6 +3,8 @@ package Controller;
 use strict;
 use CGI;
 
+use layout;
+
 my $path = "./";
 
 # Constructeur
@@ -18,13 +20,11 @@ sub new {
 
 sub render {
     my ($this, $content) = @_;
-    # TODO Charger template global
-
     # Response
     print $this->{cgi}->header(-type=>'text/html', -charset=>'utf-8', -status=>'200 Ok');
-    print $this->{cgi}->start_html(-title=>$this->{title});
-    print $content;
-    print $this->{cgi}->end_html();
+    
+    # Appeler le layout
+    print layout->make($content);
 }
 
 sub redirect {
@@ -37,7 +37,7 @@ sub notFound {
     # TODO Charger template global
     # TODO Faire cadre d'erreur
     print $this->{cgi}->header(-type=>'text/html', -charset=>'utf-8', -status=>'404 Not Found');
-    print $cgi->start_html(-title=>'404 Not Found');
+    print $this->{cgi}->start_html(-title=>'404 Not Found');
 }
 
 1;

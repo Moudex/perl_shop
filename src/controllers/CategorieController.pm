@@ -6,6 +6,8 @@ package CategorieController;
 
 use strict;
 use Controller;
+use boutiqueLayout;
+use Categorie;
 
 our @ISA = ("Controller");
 
@@ -17,9 +19,20 @@ sub new {
     return $this;
 }
 
+sub render {
+    my ($this, $content) = @_;
+    
+    # Récupération des catégories
+    my @cats = Categorie->getCategories();
+    
+    # Appel du layout
+    $this->Controller::render(boutiqueLayout->make($content, @cats));
+}
+
 ## Subroute: /
 sub indexAction {
     # Afficher produits destockage grands items
+
 }
 
 ## Subroute: /{catId}

@@ -96,6 +96,21 @@ sub store {
 #   Methodes de classe
 ###
 
+# Retourne la liste des categories
+sub getCategories {
+    my $dbh = Connexion->getDBH();
+    my $sf_tn = $dbh->quote_identifier($tableName);
+    my @cats;
+    my $sth = $dbh->prepare("SELECT Nom FROM $sf_tn");
+    $sth->execute();
+    while ( my ($cat) = $sth->fetchrow_array ) {
+	push (@cats, $cat);
+    }
+    $sth->finish();
+    $dbh->commit();
+    return @cats;
+}
+
 # Supprime la catégorie de la BDD
 sub delete {
     my ($class, $id) = @_;
