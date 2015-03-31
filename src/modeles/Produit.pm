@@ -77,6 +77,7 @@ sub load {
     $this->{quantite} = @$res[6];
 }
 
+
 # Enregistre le ou les produit en BDD
 sub store {
     my ($this) = @_;
@@ -102,6 +103,25 @@ sub store {
 ###
 #   Methodes de classe
 ###
+
+# Charge les produits de la catégorie cat
+sub load_from_cat {
+    my ($class, $cat) = @_;
+    my $dbh = Connexion->getDBH();
+    my $sf_tn = $dbh->quote_identifier($tableName);
+    my $sth = $dbh->prepare("SELECT * FROM $sf_tn WHERE Cat=?");
+    $sth->execute($cat);
+    my @res = $sth->fetchall_arrayref();
+    $sth->finish();
+    $dbh->commit();
+    my $prods = Produit->many();
+    foreach (@res) {
+	$prod = Produit->new(@$_[1], @$_[2], @$_[3], @$_[4], @$_[5], @$_[6]);
+	$prod->{id} = @$_[0];
+	push @$prods->{produits}, $prod;
+    }
+    return $prods;
+}
 
 # Supprime le produit de la BDD
 sub remove {

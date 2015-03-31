@@ -31,8 +31,12 @@ sub render {
 
 ## Subroute: /
 sub indexAction {
-    # Afficher produits destockage grands items
-
+    my ($this) = @_;
+    # On récupère les produits en BDD
+    my $destockage = Produit->load_from_cat(0);
+    # On les mets dans la vue
+    my $content = boutiqueGListe->make($destockage);
+    $this->render($content);
 }
 
 ## Subroute: /{catId}

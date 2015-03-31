@@ -1,3 +1,12 @@
+#####
+#   Layout Global
+#
+#   Ce fichier construit le layout global du site.
+#   Barre de navigation, champ de recherche
+#   Inclusion des différentes feuilles de style et du javascript
+#####
+
+
 package layout;
 
 use CGI qw/:standard/;

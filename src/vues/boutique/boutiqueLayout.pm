@@ -1,3 +1,10 @@
+#####
+#   Layout partie boutique
+#
+#   Ce fichier construit de la partie boutique.
+#   Lien de navigation des différentes catégories
+#####
+
 package boutiqueLayout;
 
 use CGI qw/:standard/;
