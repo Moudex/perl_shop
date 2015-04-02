@@ -19,14 +19,19 @@ sub make {
     $out .= start_html(
 	-title => 'Perl Shop',
 	-meta => {},
-	-style => {}
+	-style => {'src' => 'http://dup1.fr/perlshop.css'}
     );
+
+    ## add container
+    $out .= '<div id="block1"><p class="p1">Level 1</p>';
 
     ## add navbar
     $out .= nav();
 
     ## Add content
     $out .= $content;
+
+    $out .= '</div>';
 
     ## end html
     $out .= end_html;

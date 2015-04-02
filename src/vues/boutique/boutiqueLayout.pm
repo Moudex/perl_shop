@@ -11,7 +11,7 @@ use CGI qw/:standard/;
 
 sub make {
     my ($class, $content, @cats) = @_;
-    my $out = "";
+    my $out = '<div id="block2"><p class="p2">Level 2</p>';
 
     my @links = {};
     ## menu categories
@@ -24,6 +24,7 @@ sub make {
     ## Content
     $out .= $content;
 
+    $out .= '</div>';
     return $out;
 }
 

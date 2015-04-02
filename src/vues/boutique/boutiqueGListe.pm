@@ -10,7 +10,12 @@ use CGI qw/:standard/;
 
 sub make {
     my ($class, $produits) = @_;
-    return $produits->toString();
+    my $out = '<div id="block3"><p class="p3">Level 3</p><br />';
+
+    $out .=  $produits->toString();
+
+    $out .= '</div>';
+    return $out;
 }
 
 1;
