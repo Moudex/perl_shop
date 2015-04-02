@@ -12,3 +12,5 @@ sub make {
     my ($class, $produits) = @_;
     return $produits->toString();
 }
+
+1;

@@ -7,7 +7,9 @@ package CategorieController;
 use strict;
 use Controller;
 use boutiqueLayout;
+use boutiqueGListe;
 use Categorie;
+use Produit;
 
 our @ISA = ("Controller");
 

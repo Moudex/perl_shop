@@ -14,4 +14,4 @@ my @values = $buffer->param;
 # URI de la requète
 my $URI = $ENV{'REQUEST_URI'};
 
-CategorieController->new(@values)->render($URI);
+CategorieController->new(@values)->indexAction();

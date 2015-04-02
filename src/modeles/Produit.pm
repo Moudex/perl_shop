@@ -111,15 +111,15 @@ sub load_from_cat {
     my $sf_tn = $dbh->quote_identifier($tableName);
     my $sth = $dbh->prepare("SELECT * FROM $sf_tn WHERE Cat=?");
     $sth->execute($cat);
-    my @res = $sth->fetchall_arrayref();
+    my $prods = Produit->many();
+    my $row;
+    while ($row = $sth->fetchrow_arrayref()) {
+	my $prod = Produit->new(@$row[1], @$row[2], @$row[3], @$row[4], @$row[5], @$row[6]);
+	$prod->{id} = @$row[0];
+	push $prods->{produits}, $prod;
+    }
     $sth->finish();
     $dbh->commit();
-    my $prods = Produit->many();
-    foreach (@res) {
-	$prod = Produit->new(@$_[1], @$_[2], @$_[3], @$_[4], @$_[5], @$_[6]);
-	$prod->{id} = @$_[0];
-	push @$prods->{produits}, $prod;
-    }
     return $prods;
 }
 
