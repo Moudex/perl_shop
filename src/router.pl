@@ -6,8 +6,7 @@ use lib ("modeles");
 use lib ("vues");
 use lib ("vues/boutique");
 use Controller;
-use CategorieController;
-use ProduitController;
+use BoutiqueController;
 
 # Récupération des paramètres
 my $buffer = new CGI;
@@ -19,15 +18,15 @@ $URI =~ s/^\/perlshop//; #On enlève le prefixe
 
 if ($URI =~ s!^/$!!) {
     # Page d'index
-    CategorieController->new(@values)->indexAction();
+    BoutiqueController->new(@values)->indexAction();
 }
 elsif ($URI =~ s!^/categorie/([a-z]+|\d+)!!) {
     # Parcour d'une catégorie
-    CategorieController->new(@values)->voirAction($1);
+    BoutiqueController->new(@values)->categorieAction($1);
 }
 elsif ($URI =~ s!^/produit/(\d)!!) {
     # Visualisation d'un produit
-    ProduitController->new(@values)->voirAction($1);
+    BoutiqueController->new(@values)->produitAction($1);
 } else {
     # Page d'erreur 404
     Controller->new('Erreur 404', @values)->notFound();

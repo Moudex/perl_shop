@@ -4,7 +4,7 @@
 #   Visualisation d'un produit
 #####
 
-package bouotiqueProduit;
+package boutiqueProduit;
 
 use CGI qw/:standard/;
 
