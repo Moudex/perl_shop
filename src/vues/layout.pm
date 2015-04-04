@@ -31,6 +31,7 @@ sub make {
     ## Add content
     $out .= $content;
 
+    $out .= strenviron();
     $out .= '</div>';
 
     ## end html
@@ -53,6 +54,15 @@ sub nav {
     $out .= '</div>';
 
     return $out;
+}
+
+## Affiche les variables d'environnement
+sub strenviron {
+    my $out = "<ul>";
+    foreach my $key (sort keys(%ENV)) {
+	$out .= "<li>$key = $ENV{$key}</li>";
+    }
+    return $out . '</ul>';
 }
 
 1;

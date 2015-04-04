@@ -109,7 +109,13 @@ sub load_from_cat {
     my ($class, $cat) = @_;
     my $dbh = Connexion->getDBH();
     my $sf_tn = $dbh->quote_identifier($tableName);
-    my $sth = $dbh->prepare("SELECT * FROM $sf_tn WHERE Cat=?");
+    my $sth;
+    if ($cat =~ /^\d+$/) {
+	$sth = $dbh->prepare("SELECT * FROM $sf_tn WHERE Cat=?");
+    } else {
+	$cat =~ s/(\w)/\u\L$1/;
+	$sth = $dbh->prepare("SELECT Produit.Id, Produit.Nom, Produit.Desc, Produit.cat, Produit.Prix, Produit.Photo, Produit.Quantite FROM Produit, Categorie WHERE Produit.Cat = Categorie.Id and Categorie.Nom = ?");
+    }
     $sth->execute($cat);
     my $prods = Produit->many();
     my $row;

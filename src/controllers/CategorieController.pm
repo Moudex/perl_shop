@@ -8,6 +8,7 @@ use strict;
 use Controller;
 use boutiqueLayout;
 use boutiqueGListe;
+use boutiquePListe;
 use Categorie;
 use Produit;
 
@@ -33,6 +34,7 @@ sub render {
 
 ## Subroute: /
 sub indexAction {
+    # TODO appeller en bdd avec le nom de la categorie et non l'id
     my ($this) = @_;
     # On récupère les produits en BDD
     my $destockage = Produit->load_from_cat(0);
@@ -44,9 +46,13 @@ sub indexAction {
 ## Subroute: /{catId}
 ## Subroute: /{nomCat}
 sub voirAction {
+    my ($this, $cat) = @_;
     # Récupérer les produits de la catégorie
     # Les trier selon plusieurs critères
     # Paginer le résultat
+    my $prods = Produit->load_from_cat($cat);
+    my $content = boutiquePListe->make($prods);
+    $this->render($content);
 }
 
 ###
@@ -71,5 +77,6 @@ sub editAction {
 sub deleteAction {
     # Restriction Admin
 }
+
 
 1;

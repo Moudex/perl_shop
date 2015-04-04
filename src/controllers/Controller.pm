@@ -34,10 +34,8 @@ sub redirect {
 
 sub notFound {
     my ($this) = @_;
-    # TODO Charger template global
-    # TODO Faire cadre d'erreur
     print $this->{cgi}->header(-type=>'text/html', -charset=>'utf-8', -status=>'404 Not Found');
-    print $this->{cgi}->start_html(-title=>'404 Not Found');
+    print layout->make('<h2>Page introuvable !</h2>');
 }
 
 1;
