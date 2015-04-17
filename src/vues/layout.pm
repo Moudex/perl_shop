@@ -31,7 +31,7 @@ sub make {
     ## Add content
     $out .= $content;
 
-    $out .= strenviron();
+    #$out .= strenviron();
     $out .= '</div>';
 
     ## end html

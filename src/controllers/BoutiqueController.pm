@@ -16,6 +16,7 @@ use boutiqueLayout;
 use boutiqueGListe;
 use boutiquePListe;
 use boutiqueProduit;
+use boutiquePanier;
 
 # Controlleur
 use Controller;
@@ -72,6 +73,15 @@ sub produitAction {
     my ($this, $prodId) = @_;
     my $prod = Produit->new($prodId);
     my $content = boutiqueProduit->make($prod);
+    $this->render($content);
+}
+
+# Affiche le panier
+# Subroute: /panier
+sub panierAction {
+    my ($this) = @_;
+    # TODO récupérer les produits commandés
+    my $content = boutiquePanier->make();
     $this->render($content);
 }
 

@@ -117,6 +117,25 @@ sub remove_from_client {
     $dbh->commit();
 }
 
+# Récupère toutes les commandes non traités
+sub get_no_spray {
+    my ($class) = @_;
+    my $dbh = Connexion->getDBH();
+    my $sf_tn = $dbh->quote_identifier($tableName);
+    my $sth = $dbh->prepare("SELECT * FROM Commande WHERE DateE IS NULL");
+    $sth->execute();
+    my $coms = Commande->many();
+    my $row;
+    while ($row = $sth->fetchrow_arrayref()) {
+	my $com = Commande->new(@$row[1], @$row[2], @$row[3], @$row[4]);
+	$com->{id} = @$row[0];
+	push $coms->{commandes}, $com;
+    }
+    $sth->finish();
+    $dbh->commit();
+    return $coms;
+}
+
 # Crée la table
 sub createTable {
     Modele->dropTable($tableName);

@@ -103,6 +103,25 @@ sub store {
 #   Méthodes de classe
 ###
 
+# Récupère tous les produits de la commande
+sub get_from_com {
+    my ($class, $idCom) = @_;
+    my $dbh = Connexion->getDBH();
+    my $sf_tn = $dbh->quote_identifier($tableName);
+    my $sth = $dbh->prepare("SELECT Produit.Id, Produit.Nom, ProdCom.Quantitee, Produit.prix FROM Produit, ProdCom WHERE ProdCom.Produit = Produit.Id AND ProdCom.Commande = ?");
+    $sth->execute($idCom);
+    my $prods = ProdCom->many();
+    my $row;
+    while ($row = $sth->fetchrow_arrayref()) {
+	my $prod = ProdCom->new(@$row[0], $idCom, @$row[2]);
+	$prod->{nom} = @$row[1]; $prod->{prix} = @$row[3];
+	push $prods->{prodsComs}, $prod;
+    }
+    $sth->finish();
+    $dbh->commit();
+    return $prods;
+}
+
 # Supprime le produit commandé de la BDD
 sub remove {
     my ($this, $id) = @_;
