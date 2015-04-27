@@ -7,19 +7,20 @@
 
 package boutiqueLayout;
 
+use vue;
 use CGI qw/:standard/;
 
 sub make {
     my ($class, $content, @cats) = @_;
-    my $out = '<div id="block2"><p class="p2">Level 2</p>';
+    my $out = '<div>';
 
-    my @links = {};
     ## menu categories
+    $out .= '<ul>';
     foreach my $cat (@cats) {
 	my $low = lc $cat;
-	 push @links, a({href=>"http://dup1.fr/perlshop/categorie/$low"}, $cat);
+	$out .= '<li><a href="' .vue->path('categorie/'.$low). '">' .$cat. '</a></li>';
     }
-    $out .= ul( li({-type=>'none'}, @links) );
+    $out .= '</ul>';
 
     ## Content
     $out .= $content;

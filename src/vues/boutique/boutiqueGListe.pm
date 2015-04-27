@@ -6,6 +6,7 @@
 
 package boutiqueGListe;
 
+use vue;
 use CGI qw/:standard/;
 
 sub make {

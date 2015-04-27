@@ -39,11 +39,11 @@ elsif($URI =~ s!^/stock!!) {
 	# Page d'index stock
 	StockController->new(@values)->indexAction();
     }
-    elsif ($URI =~ s!^/commande/(\d)!!) {
+    elsif ($URI =~ m!^/commande/(\d)!) {
 	# Détail d'une commande
 	StockController->new(@values)->commandeAction($1);
     }
-    elsif ($URI =~ s!^/commande!!) {
+    elsif ($URI =~ m!^/commande!) {
 	# Liste des prochainnes commandes
 	StockController->new(@values)->commandesAction();
     }

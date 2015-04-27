@@ -6,11 +6,12 @@
 
 package boutiqueProduit;
 
+use vue;
 use CGI qw/:standard/;
 
 sub make {
     my ($class, $produit) = @_;
-    my $out = '<div id="block3"><p class="p3">Level 3</p><br />';
+    my $out = '<div>';
     $out .= '<h3>Visualisation produit</h3>';
     $out .= $produit->toString();
     $out .= '</div>';

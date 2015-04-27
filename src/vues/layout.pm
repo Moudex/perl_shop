@@ -9,6 +9,7 @@
 
 package layout;
 
+use vue;
 use CGI qw/:standard/;
 
 sub make {
@@ -16,14 +17,18 @@ sub make {
     my $out = "";
     
     ## html document header
-    $out .= start_html(
-	-title => 'Perl Shop',
-	-meta => {},
-	-style => {'src' => 'http://dup1.fr/perlshop.css'}
-    );
+    $out .= '<!DOCTYPE html>';
+    $out .= '<html lang="fr">';
+    $out .= '<head>';
+    $out .= '<meta charset="UTF-8" />';
+    $out .= '<title>PerlSHOP</title>';
+    $out .= '<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css" />';
+    $out .= '</head>';
+
+    
 
     ## add container
-    $out .= '<div id="block1"><p class="p1">Level 1</p>';
+    $out .= '<div>';
 
     ## add navbar
     $out .= nav();
@@ -31,7 +36,7 @@ sub make {
     ## Add content
     $out .= $content;
 
-    #$out .= strenviron();
+    #$out .= vue->environs();
     $out .= '</div>';
 
     ## end html
@@ -42,27 +47,13 @@ sub make {
 
 ## Fabrique la barre de navigation
 sub nav {
-
-    my @links = ();
-    push (@links, a({href => "http://dup1.fr/perlshop/user"}, "Profil"));
-    push (@links, a({href => "http://dup1.fr/perlshop/panier"}, "Panier"));
-
     my $out = "";
     $out .= '<div class="nav">';
     $out .= h1('Perl Shop');
-    $out .= ul( li({-type=>'none'}, @links) );
+    $out .= '<a href="' .vue->path('panier').'">Panier</a>';
     $out .= '</div>';
 
     return $out;
-}
-
-## Affiche les variables d'environnement
-sub strenviron {
-    my $out = "<ul>";
-    foreach my $key (sort keys(%ENV)) {
-	$out .= "<li>$key = $ENV{$key}</li>";
-    }
-    return $out . '</ul>';
 }
 
 1;
