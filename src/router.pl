@@ -15,44 +15,46 @@ my $buffer = new CGI;
 my @values = $buffer->param;
 
 # URI de la requète
-my $URI = $ENV{'REQUEST_URI'};
-$URI =~ s/^\/perlshop//; #On enlève le prefixe
+my $path = $ENV{'REQUEST_URI'};
+$path =~ s/^\/perlshop//; #On enlève le prefixe
 
-if ($URI =~ s!^/$!!) {
-    # Page d'index
-    BoutiqueController->new(@values)->indexAction();
-}
-elsif ($URI =~ s!^/categorie/([a-z]+|\d+)!!) {
-    # Parcour d'une catégorie
-    BoutiqueController->new(@values)->categorieAction($1);
-}
-elsif ($URI =~ s!^/produit/(\d)!!) {
-    # Visualisation d'un produit
-    BoutiqueController->new(@values)->produitAction($1);
-}
-elsif ($URI =~ s!^/panier/!!) {
-    # Visualisation du panier
-    BoutiqueController->new(@values)->panierAction();
-}
-elsif($URI =~ s!^/stock!!) {
-    if ($URI =~ s!^/$!!) {
-	# Page d'index stock
-	StockController->new(@values)->indexAction();
-    }
-    elsif ($URI =~ m!^/commande/(\d)!) {
-	# Détail d'une commande
-	StockController->new(@values)->commandeAction($1);
-    }
-    elsif ($URI =~ m!^/commande!) {
-	# Liste des prochainnes commandes
-	StockController->new(@values)->commandesAction();
-    }
-    else {
-	# Page d'erreur 404
-	Controller->new('Erreur 404', @values)->notFound();
-    }
+if($path =~ s!^/stock!!) {
+    stock();
 } else {
-    # Page d'erreur 404
-    Controller->new('Erreur 404', @values)->notFound();
+    boutique();
 }
 
+sub boutique {
+    my $c = BoutiqueController->new(@values);
+
+    # Page d'index
+    if ($path =~ m!^/?$!) { $c->indexAction(); }
+
+    # Parcour d'une catégorie
+    elsif ($path =~ m!^/categorie/([a-z]+|\d+)/?!) { $c->categorieAction($1); }
+
+    # Visualisation d'un produit
+    elsif ($path =~ m!^/produit/(\d)/?!) { $c->produitAction($1); }
+
+    # Visualisation du panier
+    elsif ($path =~ m!^/panier/?!) { $c->panierAction(); }
+
+    # Page introuvable
+    else { $c->notFound(); }
+}
+
+sub stock {
+    my $c = StockController->new(@values);
+
+    # Page d'index du stock
+    if ($path =~ m!^/?$!) { $c->indexAction(); }
+
+    # Détail d'une commande
+    elsif ($path =~ m!^/commande/(\d)/?!) { $c->commandeAction($1); }
+
+    # Liste des prochaines commandes
+    elsif ($path =~ m!^/commande/?!) { $c->commandesAction(); }
+
+    # Page introuvable
+    else { $c->notFound(); }
+}
