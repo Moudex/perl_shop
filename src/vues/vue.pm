@@ -23,4 +23,14 @@ sub environs {
     return $out . '</ul>';
 }
 
+## Retourne les valeurs GET et POST
+## Ne pas laisser publique, pour débogage uniquement
+sub getpost {
+    my $out = '<ul>';
+    for my $key (param()) {
+	$out .= '<li>'.$key.' = ' .param($key).'</li>';
+    }
+    return $out . '</ul>';
+}
+
 1;

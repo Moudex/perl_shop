@@ -11,8 +11,9 @@ use CGI qw/:standard/;
 
 sub make {
     my ($class, $content) = @_;
-    my $out = '<div id="block2"><p class="p2">Level 2</p>';
-
+    my $out = '<div>';
+    
+    $out .= '<h2>Stock</h2>';
     $out .= '<ul><li><a href="./stock/commande/">Commandes</a></li><li>Approvisionnement</li><li>Nouveau produit</li></ul>';
 
     ## Content

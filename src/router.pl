@@ -1,6 +1,5 @@
 #!/usr/bin/env perl
 
-use CGI;
 use lib ("controllers");
 use lib ("modeles");
 use lib ("vues");
@@ -9,10 +8,6 @@ use lib ("vues/stock");
 use Controller;
 use BoutiqueController;
 use StockController;
-
-# Récupération des paramètres
-my $buffer = new CGI;
-my @values = $buffer->param;
 
 # URI de la requète
 my $path = $ENV{'REQUEST_URI'};
@@ -25,7 +20,7 @@ if($path =~ s!^/stock!!) {
 }
 
 sub boutique {
-    my $c = BoutiqueController->new(@values);
+    my $c = BoutiqueController->new();
 
     # Page d'index
     if ($path =~ m!^/?$!) { $c->indexAction(); }
@@ -44,7 +39,7 @@ sub boutique {
 }
 
 sub stock {
-    my $c = StockController->new(@values);
+    my $c = StockController->new();
 
     # Page d'index du stock
     if ($path =~ m!^/?$!) { $c->indexAction(); }
@@ -54,6 +49,9 @@ sub stock {
 
     # Liste des prochaines commandes
     elsif ($path =~ m!^/commande/?!) { $c->commandesAction(); }
+
+    # Nouveau produit
+    elsif ($path =~ m!^/produit/new/?!) { $c->newProduitAction(); }
 
     # Page introuvable
     else { $c->notFound(); }

@@ -16,6 +16,7 @@ use ProdCom;
 use stockLayout;
 use stockCommandes;
 use stockCommande;
+use stockProduitForm;
 
 
 # Controller
@@ -81,9 +82,47 @@ sub produitAction {
 # Subroute: /stock/produit/new
 sub newProduitAction {
     my ($this) = @_;
-    
+    my $cgi = $this->{cgi};
+
+    # Produit envoyé
+    if ($this->sendProduit()) {
+	my $prod = Produit->new($cgi->param('nom'), $cgi->param('desc'), $cgi->param('cat'), $cgi->param('prix'), $cgi->param('photo'), $cgi->param('qte'));
+	my ($err, $mess) = $prod->check();
+	if ($err == -1) {
+	    $prod->store(); # Enregitrement
+	    $this->redirect($this->path('produit/'.$prod->{id})); # Redirection
+	} else {
+	    # Si le produit n'est pas valide, on réafiche le formulaire pré-remplis
+	    my @cats = Categorie->getCategoriesHash();
+	    my $out = stockProduitForm->make(@cats, $prod);
+	    $this->render($out);
+	}
+    }
+
+    # Nouveau produit
+    else {
+	my @cats = Categorie->getCategoriesHash();
+	my $out = stockProduitForm->make(@cats);
+	$this->render($out);
+    }
+}
+
+# Edition d'un produit
+# Subroute: /stock/produit/edit/{prodId}
+sub editProduitAction {
+    my ($this) = @_;
 }
 
 # Retirer produit
+
+
+# Regarde si un produit à été envoyé
+sub sendProduit {
+    my ($this) = @_;
+    my $cgi = $this->{cgi};
+
+    return ($cgi->param("nom") ne undef) and ($cgi->param("desc") ne undef) and ($cgi->param("cat") ne undef) and ($cgi->param("prix") ne undef) and ($cgi->param("photo") ne undef) and ($cgi->param("qte") ne undef);
+}
+
 
 1;

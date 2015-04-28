@@ -111,6 +111,36 @@ sub getCategories {
     return @cats;
 }
 
+# Retourne les id des catégories
+sub getCategoriesIds {
+    my $dbh = Connexion->getDBH();
+    my $sf_tn = $dbh->quote_identifier($tableName);
+    my @ids;
+    my $sth = $dbh->prepare("SELECT Id FROM $sf_tn");
+    $sth->execute();
+    while (my($id) = $sth->fetchrow_array) {
+	push (@ids, $id);
+    }
+    $sth->finish();
+    $dbh->commit();
+    return @ids;
+}
+
+# Retourne les catégories sous forme de hash
+sub getCategoriesHash {
+    my $dbh = Connexion->getDBH();
+    my $sf_tn = $dbh->quote_identifier($tableName);
+    my %cats;
+    my $sth = $dbh->prepare("SELECT Id,Nom FROM $sf_tn");
+    $sth->execute();
+    while (my($id,$nom) = $sth->fetchrow_array) {
+	$cats{$nom} = $id;
+    }
+    $sth->finish();
+    $dbh->commit();
+    return %cats;
+}
+
 # Supprime la catégorie de la BDD
 sub delete {
     my ($class, $id) = @_;

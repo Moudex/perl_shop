@@ -4,6 +4,7 @@ package Produit;
 use strict;
 use Modele;
 use Connexion;
+use Categorie;
 
 our $tableName = 'Produit';
 
@@ -45,6 +46,39 @@ sub add {
 	foreach (@_) {
 	    push @{$this->{produits}}, $_;
 	}
+    }
+}
+
+# Vérifie le ou les produit(s)
+sub check {
+    my ($this) = @_;
+    if ($this->{produits} == undef) {
+	my %cats = Categorie->getCategoriesIds();
+	my $catok = 0;
+	foreach my $cat (%cats) {
+	    if ($cat == $this->{cat}) {
+		$catok = 1;
+		last;
+	    }
+	}
+	if (length($this->{nom}) < 3 or length($this->{nom}) > 50) {
+	    return (0, 'Taille du nom incorrecte');
+	} elsif (length($this->{desc}) < 3 or length($this->{desc}) > 255) {
+	    return (0, 'Taille de la description incorrecte');
+	} elsif (!$catok) {
+	    return (0, 'La catégorie n\'éxiste pas');
+	} elsif ($this->{prix} !~ m/\d+,\d\d/) {
+	    return (0, 'Prix invalide');		
+	} elsif (length($this->{photo}) < 1) {
+	    return (0, 'Photo invalide');
+	} elsif ($this->{quantite} < 0) {
+	    return (0, 'Quantotée invalide');
+	} else {
+	    return (-1, 'Produit valide');
+	}
+    }
+    else {
+	# TODO vérifier une liste de produits
     }
 }
 
@@ -113,7 +147,7 @@ sub load_from_cat {
     if ($cat =~ /^\d+$/) {
 	$sth = $dbh->prepare("SELECT * FROM $sf_tn WHERE Cat=?");
     } else {
-	$cat =~ s/(\w)/\u\L$1/;
+	$cat =~ s/(\w)/\u\L$1/; #Met en majuscule la première lettre
 	$sth = $dbh->prepare("SELECT Produit.Id, Produit.Nom, Produit.Desc, Produit.cat, Produit.Prix, Produit.Photo, Produit.Quantite FROM Produit, Categorie WHERE Produit.Cat = Categorie.Id and Categorie.Nom = ?");
     }
     $sth->execute($cat);

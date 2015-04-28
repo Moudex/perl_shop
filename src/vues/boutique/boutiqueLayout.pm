@@ -14,6 +14,8 @@ sub make {
     my ($class, $content, @cats) = @_;
     my $out = '<div>';
 
+    $out .= '<h2>Boutique</h2>';
+
     ## menu categories
     $out .= '<ul>';
     foreach my $cat (@cats) {
