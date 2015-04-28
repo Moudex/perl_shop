@@ -29,7 +29,7 @@ sub boutique {
     elsif ($path =~ m!^/categorie/([a-z]+|\d+)/?!) { $c->categorieAction($1); }
 
     # Visualisation d'un produit
-    elsif ($path =~ m!^/produit/(\d)/?!) { $c->produitAction($1); }
+    elsif ($path =~ m!^/produit/(\d+)/?!) { $c->produitAction($1); }
 
     # Visualisation du panier
     elsif ($path =~ m!^/panier/?!) { $c->panierAction(); }
@@ -45,13 +45,16 @@ sub stock {
     if ($path =~ m!^/?$!) { $c->indexAction(); }
 
     # Détail d'une commande
-    elsif ($path =~ m!^/commande/(\d)/?!) { $c->commandeAction($1); }
+    elsif ($path =~ m!^/commande/(\d+)/?!) { $c->commandeAction($1); }
 
     # Liste des prochaines commandes
     elsif ($path =~ m!^/commande/?!) { $c->commandesAction(); }
 
     # Nouveau produit
     elsif ($path =~ m!^/produit/new/?!) { $c->newProduitAction(); }
+
+    # Edition produit
+    elsif ($path =~ m!^/produit/edit/(\d+)/?!) { $c->editProduitAction($1); }
 
     # Page introuvable
     else { $c->notFound(); }

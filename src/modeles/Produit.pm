@@ -71,7 +71,7 @@ sub check {
 	    return (0, 'Prix invalide');		
 	} elsif (length($this->{photo}) < 1) {
 	    return (0, 'Photo invalide');
-	} elsif ($this->{quantite} < 0) {
+	} elsif ($this->{quantite} !~ m/-?\d+/) {
 	    return (0, 'Quantotée invalide');
 	} else {
 	    return (-1, 'Produit valide');

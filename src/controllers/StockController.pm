@@ -93,16 +93,16 @@ sub newProduitAction {
 	    $this->redirect($this->path('produit/'.$prod->{id})); # Redirection
 	} else {
 	    # Si le produit n'est pas valide, on réafiche le formulaire pré-remplis
-	    my @cats = Categorie->getCategoriesHash();
-	    my $out = stockProduitForm->make(@cats, $prod);
+	    my %cats = Categorie->getCategoriesHash();
+	    my $out = stockProduitForm->make(\%cats, $prod);
 	    $this->render($out);
 	}
     }
 
     # Nouveau produit
     else {
-	my @cats = Categorie->getCategoriesHash();
-	my $out = stockProduitForm->make(@cats);
+	my %cats = Categorie->getCategoriesHash();
+	my $out = stockProduitForm->make(\%cats);
 	$this->render($out);
     }
 }
@@ -110,7 +110,32 @@ sub newProduitAction {
 # Edition d'un produit
 # Subroute: /stock/produit/edit/{prodId}
 sub editProduitAction {
-    my ($this) = @_;
+    my ($this, $id) = @_;
+    my $cgi = $this->{cgi};
+
+    # Produit envoyé
+    if ($this->sendProduit()) {
+	my $prod = Produit->new($cgi->param("nom"), $cgi->param("desc"), $cgi->param("cat"), $cgi->param("prix"), $cgi->param("photo"), $cgi->param("qte"));
+	my ($err, $mess) = $prod->check();
+	if ($err == -1) {
+	    $prod->{id} = $id;
+	    $prod->store(); # Enregitrement
+	    $this->redirect($this->path('produit/'.$prod->{id})); # Redirection
+	} else {
+	    # Si le produit n'est pas valide, on réafiche le formulaire pré-remplis
+	    my %cats = Categorie->getCategoriesHash();
+	    my $out = stockProduitForm->make(\%cats, $prod);
+	    $this->render($out);
+	}
+    }
+
+    # Edition produit
+    else {
+	my $prod = Produit->new($id);
+	my %cats = Categorie->getCategoriesHash();
+	my $out = stockProduitForm->make(\%cats, $prod);
+	$this->render($out);
+    }
 }
 
 # Retirer produit
