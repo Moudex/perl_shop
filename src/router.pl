@@ -56,6 +56,9 @@ sub stock {
     # Edition produit
     elsif ($path =~ m!^/produit/edit/(\d+)/?!) { $c->editProduitAction($1); }
 
+    # Supression d'un produit
+    elsif ($path =~ m!^/produit/delete/(\d+)/?!) { $c->deleteProduitAction($1); }
+
     # Page introuvable
     else { $c->notFound(); }
 }

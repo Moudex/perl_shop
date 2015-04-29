@@ -17,6 +17,7 @@ use stockLayout;
 use stockCommandes;
 use stockCommande;
 use stockProduitForm;
+use stockDelete;
 
 
 # Controller
@@ -73,8 +74,8 @@ sub commandeAction {
 
 
 # Approvisionne un produit
-# Subroute /stock/produit/{prodId}
-sub produitAction {
+# Subroute /stock/produit/appro/{prodId}
+sub approProduitAction {
 
 }
 
@@ -139,6 +140,22 @@ sub editProduitAction {
 }
 
 # Retirer produit
+# Subroute: /stock/produit/delete/{prodId}
+sub deleteProduitAction {
+    my ($this, $id) = @_;
+    my $cgi = $this->{cgi};
+
+    # Confirmé
+    if ($cgi->param("confirm") eq "yes") {
+	Produit->remove($id);
+	$this->redirect($this->path('stock'));
+    }
+
+    # Affiche une page de confirmation
+    my $prod = Produit->new($id);
+    my $out = stockDelete->make($prod);
+    $this->render($out);
+}
 
 
 # Regarde si un produit à été envoyé
