@@ -17,8 +17,13 @@ Configurez Apache :
 
 ```
 ScriptAliasMatch ^/perlshop/(.*) [pathToSource]/perl_shop/src/router.pl
-<Directory "[pathToSource/perl_shop/src">
-    AddHandler cgi-script .pl .pm
+<Directory "[pathToSource]/perl_shop/src">
+    AddHandler cgi-script .pl
     Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch -Indexes
 </Directory>
 ```
+La première ligne indique que toutes requète éffectués dans le dossier "perlshop" devras être éxecuté par le script "router.pl". Ce script décompose ensuite l'url de la requète pour appeller le controlleur correspondant.
+Le reste de la configuration permet de pouvoir éxecuter les scripts .pl dans le dossier des sources.
+
+La boutique seras accessible depuis "http://<domaine>/perlshop".
+Il est possible de remplacer le préfixe *perlshop* à condition de modifier les sources (méthodes *path* du controlleur et de la vue).
