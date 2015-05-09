@@ -1,12 +1,15 @@
-#!/usr/bin/env perl
-
 package Admin;
+
 use strict;
+
 use Modele;
 use Individu;
 use Connexion;
+
+# Hérite de Individu
 our @ISA = ("Individu");
 
+# Nom de la table en BDD
 our $tableName = 'Admin';
 
 # Constructeur unique
@@ -47,7 +50,7 @@ sub add {
     if ($this->{admins} == undef) { die 'NotAdminList'; }
     else {
 	foreach (@_) {
-	    push @{$this->{admins}}, $_;
+	    push(@{$this->{admins}}, $_);
 	}
     }
 }
@@ -69,7 +72,6 @@ sub load {
     my ($this, $id) = @_;
     if ($id eq undef) {
 	die 'UndefinedId';
-	return -1;
     }
     $this->Individu::load($id);
     my $res = Modele->load($tableName, $id);
@@ -78,27 +80,34 @@ sub load {
 }
 
 # Enregistre le ou les admin en BDD
+# Création et mise ajour automatique
 sub store {
     my ($this) = @_;
     if ($this->{admins} == undef) {
+	if (!$this->check()) { return 0; }
 	my $dbh = Connexion->getDBH();
-	my $sf_tn = $dbh->quote_identifier($tableName);
 	my $sth;
 	if ($this->{id} eq undef) { # Création
 	    $this->Individu::store();
-	    $sth = $dbh->prepare("INSERT INTO $sf_tn VALUES (?,?)");
+	    $sth = $dbh->prepare("INSERT INTO $tableName VALUES (?,?)");
 	    $sth->execute($this->{id}, $this->{role});
 	} else { # Modification
 	    $this->Individu::store();
-	    $sth = $dbh->prepare("UPDATE $sf_tn SET Role=? WHERE Id=?");
+	    $sth = $dbh->prepare("UPDATE $tableName SET Role=? WHERE Id=?");
 	    $sth->execute($this->{role}, $this->{id});
 	}
-	$sth->finish();
-	$dbh->commit();
+	$sth->finish(); $dbh->commit();
+	return 1;
     } else {
 	# Pas encore implémenté !
 	return -1;
     }
+}
+
+# Vérifie l'admin
+sub check {
+    my ($this) = @_;
+    return ($this->Individu::check()) and (length $this->{role} >= 2) and (length $this->{role} <= 25);
 }
 
 
@@ -117,8 +126,7 @@ sub remove {
 sub createTable {
     Modele->dropTable($tableName);
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
-    my $sth = $dbh->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Role text NOT NULL)");
+    my $sth = $dbh->prepare("CREATE TABLE $tableName (Id integer PRIMARY KEY, Role text NOT NULL)");
     $sth->execute();
     $sth->finish();
     $dbh->commit();

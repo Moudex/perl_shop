@@ -5,23 +5,52 @@
 
 package stockCommande;
 
+use vue;
 use CGI qw/:standard/;
 
 sub make {
-    my ($class, $produits) = @_;
+    my ($class, %args) = @_;
+    my $n = "\n";
+    my $t = "\t";
+    my $out = '<div>'.$n;
 
-    my $out = '<div id="block3"><p class="p3">Level 3</p><br />';
+    $out .= $t.'<h1>'.$args{titre}.'</h1>'.$n;
 
-    $out .= '<h3>Détail Commande</h3>';
-
-    $out .= '<table>';
-    $out .= '<tr><th>Nom</th><th>Qté.</th><th>Prix U.</th><th>Prix T.</th></tr>';
-    foreach my $p (@{$produits->{prodsComs}}) {
-	$out .= "<tr><td>$p->{nom}</td><td>$p->{quantitee}</td><td>$p->{prix}</td><td>" .$p->{quantitee}*$p->{prix} ."</td></tr>";
+    # détail de la commande
+    $out .= '<table class="pure-table pure-table-bordered pure-table-striped">'.$n;
+    $out .= $t.'<thead><tr>'.$n;
+    $out .= $t.$t.'<th>Ref.</th><th>Nom</th><th>Prix U.</th><th>Qté.</th><th>Prix T.</th>'.$n;
+    $out .= $t.'</tr></thead>'.$n;
+    $out .= $t.'<tbody>'.$n;
+    my $total = 0;
+    foreach (@{$args{produits}->{prodsComs}}) {
+	my $pu=$_->{prix}; $pu=~s/,/\./; my $pt=$pu*$_->{quantitee}; $total+=$pt; $pt=~s/\./,/;
+	$out .= $t.$t.'<tr>'.$n;
+	$out .= $t.$t.$t.'<td class="adroite"><a href="'.vue->path('produit/'.$_->{produit}).'">'.$_->{produit}.'</a></td>'.$n;
+	$out .= $t.$t.$t.'<td>'.$_->{nom}.'</td>'.$n;
+	$out .= $t.$t.$t.'<td class="adroite">'.$_->{prix}.'€</td>'.$n;
+	$out .= $t.$t.$t.'<td class="adroite">'.$_->{quantitee}.'</td>'.$n;
+	$out .= $t.$t.$t.'<td class="adroite">'.$pt.'€</td>'.$n;
+	$out .= $t.$t.'</tr>'.$n;
     }
-    $out .= '</table>';
+    $out.= $t.'</tbody>'.$n;
+    $out .= '</table>'.$n;
 
-    $out .= '</div>';
+    $total =~ s/\./,/;
+    $out .= '<p>Total : '.$total.'€</p>'.$n;
+
+    # Commande
+    $out .= '<p>'.$args{commande}->toString().'</p>'.$n;
+
+    # Données du client
+    $out .= '<p>'.$args{client}->toString().'</p>'.$n;
+
+    # afficher si non expédié
+    if ($args{commande}->{dateE} eq undef) {
+	$out .= '<a href="'.vue->path('stock/commande/exp/'.$args{commande}->{id}).'">Expédier la commande</a>'.$n;
+    }
+
+    $out .= '</div>'.$n;
     
     return $out;
 }

@@ -26,13 +26,22 @@ sub boutique {
     if ($path =~ m!^/?$!) { $c->indexAction(); }
 
     # Parcour d'une catégorie
-    elsif ($path =~ m!^/categorie/([a-z]+|\d+)/?!) { $c->categorieAction($1); }
+    elsif ($path =~ m!^/categorie/([a-z]+|\d+)/?$!) { $c->categorieAction($1); }
 
     # Visualisation d'un produit
-    elsif ($path =~ m!^/produit/(\d+)/?!) { $c->produitAction($1); }
+    elsif ($path =~ m!^/produit/(\d+)/?$!) { $c->produitAction($1); }
 
     # Visualisation du panier
-    elsif ($path =~ m!^/panier/?!) { $c->panierAction(); }
+    elsif ($path =~ m!^/panier/?$!) { $c->panierAction(); }
+
+    # Ajout d'un produit au panier
+    elsif ($path =~ m!^/panier/add/(\d+)/?$!) { $c->addPanierAction($1); }
+
+    # Suppression d'un produit du panier
+    elsif ($path =~ m!^/panier/delete/(\d+)/?$!) { $c->deletePanierAction($1); }
+
+    # Passer la commande
+    elsif ($path =~ m!^/commander/?$!) { $c->commanderAction(); }
 
     # Page introuvable
     else { $c->notFound(); }
@@ -45,19 +54,34 @@ sub stock {
     if ($path =~ m!^/?$!) { $c->indexAction(); }
 
     # Détail d'une commande
-    elsif ($path =~ m!^/commande/(\d+)/?!) { $c->commandeAction($1); }
+    elsif ($path =~ m!^/commande/(\d+)/?$!) { $c->commandeAction($1); }
 
-    # Liste des prochaines commandes
-    elsif ($path =~ m!^/commande/?!) { $c->commandesAction(); }
+    # Liste des commandes
+    elsif ($path =~ m!^/commande/?$!) { $c->commandesAction(); }
+
+    # Commandes non-traités
+    elsif ($path =~ m!^/commande/nospray/?$!) { $c->commandesNosprayAction(); }
+
+    # Commandes envoyés
+    elsif ($path =~ m!^/commande/send/?$!) { $c->commandesSendAction(); }
+
+    # Expédition de la commande
+    elsif ($path =~ m!^/commande/exp/(\d+)/?$!) { $c->commandeExpAction($1); }
+
+    # Liste des produits
+    elsif ($path =~ m!^/produit/?$!) { $c->produitsAction(); }
+
+    # Produits en rupture de stock
+    elsif ($path =~ m!^/produit/rupture/?$!) { $c->produitsRuptureAction(); }
 
     # Nouveau produit
-    elsif ($path =~ m!^/produit/new/?!) { $c->newProduitAction(); }
+    elsif ($path =~ m!^/produit/new/?$!) { $c->newProduitAction(); }
 
     # Edition produit
-    elsif ($path =~ m!^/produit/edit/(\d+)/?!) { $c->editProduitAction($1); }
+    elsif ($path =~ m!^/produit/edit/(\d+)/?$!) { $c->editProduitAction($1); }
 
     # Supression d'un produit
-    elsif ($path =~ m!^/produit/delete/(\d+)/?!) { $c->deleteProduitAction($1); }
+    elsif ($path =~ m!^/produit/delete/(\d+)/?$!) { $c->deleteProduitAction($1); }
 
     # Page introuvable
     else { $c->notFound(); }

@@ -1,10 +1,11 @@
-#!/usr/bin/env perl
-
 package ProdCom;
+
 use strict;
+
 use Modele;
 use Connexion;
 
+# Nom de la table en BDD
 our $tableName = 'ProdCom';
 
 # Constructeur unique
@@ -81,22 +82,29 @@ sub load {
 sub store {
     my ($this) = @_;
     if ($this->{ProdsComs} == undef) {
+	if (!$this->check()) { return 0; }
 	my $dbh = Connexion->getDBH();
-	my $sf_tn = $dbh->quote_identifier($tableName);
 	my $sth;
 	if ($this->{id} eq undef) { # Création
 	    $this->{id} = Modele->nextId($tableName);
-	    $sth = $dbh->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?)");
+	    $sth = $dbh->prepare("INSERT INTO $tableName VALUES (?,?,?,?)");
 	    $sth->execute($this->{id}, $this->{produit}, $this->{commande}, $this->{quantitee});
 	} else { # Modification
-	    $sth = $dbh->prepare("UPDATE $sf_tn SET Produit=?, Commande=?, Quantitee=? WHERE Id=?");
+	    $sth = $dbh->prepare("UPDATE $tableName SET Produit=?, Commande=?, Quantitee=? WHERE Id=?");
 	    $sth->execute($this->{produit}, $this->{commande}, $this->{quantitee}, $this->{id});
 	}
 	$sth->finish();
 	$dbh->commit();
+	return 1;
     } else {
 	return -1;
     }
+}
+
+# Vérifie un produit commandé
+sub check {
+    my ($this) = @_;
+    return ($this->{produit} =~ m/\d+/) and ($this->{commande} =~ m/\d+/) and ($this->{quantitee} =~ m/\d+/);
 }
 
 ###
@@ -107,7 +115,6 @@ sub store {
 sub get_from_com {
     my ($class, $idCom) = @_;
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
     my $sth = $dbh->prepare("SELECT Produit.Id, Produit.Nom, ProdCom.Quantitee, Produit.prix FROM Produit, ProdCom WHERE ProdCom.Produit = Produit.Id AND ProdCom.Commande = ?");
     $sth->execute($idCom);
     my $prods = ProdCom->many();
@@ -132,8 +139,7 @@ sub remove {
 sub remove_from_commande {
     my ($class, $id_com) = @_;
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
-    my $sth = $dbh->prepare("DELETE FROM $sf_tn WHERE Commande=?");
+    my $sth = $dbh->prepare("DELETE FROM $tableName WHERE Commande=?");
     $sth->execute($id_com);
     $sth->finish();
     $dbh->commit();
@@ -143,8 +149,7 @@ sub remove_from_commande {
 sub createTable {
     Modele->dropTable($tableName);
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
-    my $sth = $dbh->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Produit integer NOT NULL, Commande integer NOT NULL, Quantitee integer default 1, FOREIGN KEY(Produit) REFERENCES Produit(Id), FOREIGN KEY(Commande) REFERENCES Commande(Id))");
+    my $sth = $dbh->prepare("CREATE TABLE $tableName (Id integer PRIMARY KEY, Produit integer NOT NULL, Commande integer NOT NULL, Quantitee integer default 1, FOREIGN KEY(Produit) REFERENCES Produit(Id), FOREIGN KEY(Commande) REFERENCES Commande(Id))");
     $sth->execute();
     $sth->finish();
     $dbh->commit();

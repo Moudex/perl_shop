@@ -13,45 +13,75 @@ use vue;
 use CGI qw/:standard/;
 
 sub make {
-    my ($class, $content) = @_;
+    my ($class, %args) = @_;
     my $out = "";
+    my $n = "\n";
+    my $t = "\t";
     
-    ## html document header
-    $out .= '<!DOCTYPE html>';
-    $out .= '<html lang="fr">';
-    $out .= '<head>';
-    $out .= '<meta charset="UTF-8" />';
-    $out .= '<title>PerlSHOP</title>';
-    $out .= '<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css" />';
-    $out .= '</head>';
+    # En-tête
+    $out .= '<!DOCTYPE html>'.$n;
+    $out .= '<html lang="fr">'.$n;
+    $out .= '<head>'.$n;
+    $out .= $t.'<meta charset="UTF-8" />'.$n;
+    $out .= $t.'<meta name="viewport" content="width=device-width, initial-scale=1.0">'.$n;
+    $out .= $t.'<title>PerlSHOP</title>'.$n;
+
+    ## CSS
+    $out .= $t.'<link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css" />'.$n;
+    $out .= $t.'<!--[if lte IE 8]>'.$n;
+    $out .= $t.$t.'<link rel="stylesheet" href="http://purecss.io/combo/1.18.13?/css/layouts/gallery-grid-old-ie.css">'.$n;
+    $out .= $t.$t.'<link rel="stylesheet" href="http://purecss.io/combo/1.18.13?/css/layouts/gallery-old-ie.css">'.$n;
+    $out .= $t.'<![endif]--><!--[if gt IE 8]><!-->'.$n;
+    $out .= $t.$t.'<link rel="stylesheet" href="http://purecss.io/combo/1.18.13?/css/layouts/gallery-grid.css">'.$n;
+    $out .= $t.$t.'<link rel="stylesheet" href="http://purecss.io/combo/1.18.13?/css/layouts/gallery.css">'.$n;
+    $out .= $t.'<!--<![endif]-->'.$n;
+    $out .= $t.'<link rel="stylesheet" href="http://'.$ENV{"HTTP_HOST"}.'/perlshop.css">'.$n;
+    $out .= $args{css}.$n;
+
+    $out .= '</head>'.$n;
 
     
 
     ## add container
-    $out .= '<div>';
+    $out .= '<body>'.$n;
 
     ## add navbar
-    $out .= nav();
+    $out .= nav($args{cats}).$n;
 
     ## Add content
-    $out .= $content;
+    $out .= $args{content}.$n;
 
-    #$out .= vue->environs();
+    ## Footer
+    $out .= '<div id="footer">';
+    $out .= $t.'<p>(c) PerlShop 2015 | <a href="'.vue->path('stock').'">Stock</a></p>';
     $out .= '</div>';
 
-    ## end html
-    $out .= end_html;
-    
+
+    #$out .= vue->environs();
+    $out .= '</body>';
+
     return $out;
 }
 
 ## Fabrique la barre de navigation
 sub nav {
+    my ($cats) = @_;
     my $out = "";
-    $out .= '<div class="nav">';
-    $out .= h1('Perl Shop');
-    $out .= '<a href="' .vue->path('panier').'">Panier</a>';
-    $out .= '</div>';
+    my $n = "\n";
+    my $t = "\t";
+
+    #header
+    $out .= '<nav id="header" class="header">'.$n;
+    $out .= '<div class="pure-menu pure-menu-horizontal" style="display:inline-block;">'.$n;
+    $out .= $t.'<a class="pure-menu-heading" href="'.vue->path('').'">Perl Shop</a>'.$n;
+    $out .= $t.'<ul class="pure-menu-list">'.$n;
+    foreach (@$cats) {
+	$out .= $t.$t.'<li class="pure-menu-item"><a class="pure-menu-link" href="'.vue->path('categorie/'. lc $_).'">'.$_.'</a></li>'.$n;
+    }
+    $out .= $t.'</ul>'.$n;
+    $out .= $t.'<a class="pure-button" href="'.vue->path('panier').'">Panier</a>'.$n;
+    $out .= '</div>'.$n;
+    $out .= '</nav>'.$n;
 
     return $out;
 }

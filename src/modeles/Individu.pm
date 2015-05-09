@@ -1,10 +1,11 @@
-#!/usr/bin/env perl
-
 package Individu;
+
 use strict;
+
 use Modele;
 use Connexion;
 
+# Nom de la table en BDD
 our $tableName = 'Individu';
 
 # Constructeur
@@ -48,19 +49,26 @@ sub load {
 # Enregistre l'individu en BDD
 sub store {
     my ($this) = @_;
+    if (!$this->check()) { return 0; }
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
     my $sth;
     if ($this->{id} eq undef) { # Création
 	$this->{id} = Modele->nextId($tableName);
-	$sth = $dbh->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?,?)");
+	$sth = $dbh->prepare("INSERT INTO $tableName VALUES (?,?,?,?,?)");
 	$sth->execute($this->{id}, $this->{nom}, $this->{prenom}, $this->{email}, $this->{password});
     } else { # Modification
-	$sth = $dbh->prepare("UPDATE $sf_tn SET Nom=?, Prenom=?, Email=?, Password=? WHERE Id=?");
+	$sth = $dbh->prepare("UPDATE $tableName SET Nom=?, Prenom=?, Email=?, Password=? WHERE Id=?");
 	$sth->execute($this->{nom}, $this->{prenom}, $this->{email}, $this->{password}, $this->{id});
     }
     $sth->finish();
     $dbh->commit();
+    return 1;
+}
+
+# Vérifie l'individu
+sub check {
+    my ($this) = @_;
+    return (length $this->{nom} >= 3) and (length $this->{nom} <= 50) and (length $this->{prenom} >= 3) and (length $this->{prenom} <= 50) and (length $this->{email} <= 255) and ($this->{email} =~ m/.+@.+/);
 }
 
 
@@ -78,8 +86,7 @@ sub remove {
 sub createTable {
     Modele->dropTable($tableName);
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
-    my $sth = $dbh->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Nom text NOT NULL, Prenom text NOT NULL, Email text NOT NULL, Password text NOT NULL)");
+    my $sth = $dbh->prepare("CREATE TABLE $tableName (Id integer PRIMARY KEY, Nom text NOT NULL, Prenom text NOT NULL, Email text NOT NULL, Password text NOT NULL)");
     $sth->execute();
     $sth->finish();
     $dbh->commit();

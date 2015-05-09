@@ -1,10 +1,11 @@
-#!/usr/bin/env perl
-
 package Categorie;
+
 use strict;
+
 use Modele;
 use Connexion;
 
+# Nom de la table en BDD
 our $tableName = 'Categorie';
 
 # Constructeur unique
@@ -73,24 +74,31 @@ sub load {
 sub store {
     my ($this) = @_;
     if ($this->{categories} == undef) {
+	if (!$this->check()) { return 0; }
 	my $dbh = Connexion->getDBH();
-	my $sf_tn = $dbh->quote_identifier($tableName);
 	my $sth;
 	if ($this->{id} eq undef) { # Création
 	    $this->{id} = Modele->nextId($tableName);
-	    $sth = $dbh->prepare("INSERT INTO $sf_tn VALUES (?,?,?)");
+	    $sth = $dbh->prepare("INSERT INTO $tableName VALUES (?,?,?)");
 	    $sth->execute($this->{id}, $this->{nom}, $this->{parent});
 	} else { # Modification
-	    $sth = $dbh->prepare("UPDATE $sf_tn SET Nom=?, Parent=? WHERE Id=?");
+	    $sth = $dbh->prepare("UPDATE $tableName SET Nom=?, Parent=? WHERE Id=?");
 	    $sth->execute($this->{nom}, $this->{parent}, $this->{id});
 	}
-	$sth->finish();
-	$dbh->commit();
+	$sth->finish(); $dbh->commit();
+	return 1;
     } else {
+	# Pas encore implémenté !
 	return -1;
     }
 }
 
+# vérifie la catégorie
+sub check {
+    my ($this) = @_;
+    # première lettre en majuscule et le reste en minuscule
+    return ($this->{nom} =~ m/[A-Z][a-z]*/) and (length $this->{nom} >= 2) and (length $this->{nom} <= 25);
+}
 
 ###
 #   Methodes de classe
@@ -99,9 +107,8 @@ sub store {
 # Retourne la liste des categories
 sub getCategories {
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
     my @cats;
-    my $sth = $dbh->prepare("SELECT Nom FROM $sf_tn");
+    my $sth = $dbh->prepare("SELECT Nom FROM $tableName");
     $sth->execute();
     while ( my ($cat) = $sth->fetchrow_array ) {
 	push (@cats, $cat);
@@ -114,9 +121,8 @@ sub getCategories {
 # Retourne les id des catégories
 sub getCategoriesIds {
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
     my @ids;
-    my $sth = $dbh->prepare("SELECT Id FROM $sf_tn");
+    my $sth = $dbh->prepare("SELECT Id FROM $tableName");
     $sth->execute();
     while (my($id) = $sth->fetchrow_array) {
 	push (@ids, $id);
@@ -129,9 +135,8 @@ sub getCategoriesIds {
 # Retourne les catégories sous forme de hash
 sub getCategoriesHash {
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
     my %cats;
-    my $sth = $dbh->prepare("SELECT Id,Nom FROM $sf_tn");
+    my $sth = $dbh->prepare("SELECT Id,Nom FROM $tableName");
     $sth->execute();
     while (my($id,$nom) = $sth->fetchrow_array) {
 	$cats{$nom} = $id;
@@ -151,8 +156,7 @@ sub delete {
 sub createTable {
     Modele->dropTable($tableName);
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
-    my $sth = $dbh->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Nom text NOT NULL, Parent integer)");
+    my $sth = $dbh->prepare("CREATE TABLE $tableName (Id integer PRIMARY KEY, Nom text NOT NULL, Parent integer)");
     $sth->execute();
     $sth->finish();
     $dbh->commit();

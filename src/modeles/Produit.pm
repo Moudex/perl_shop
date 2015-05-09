@@ -1,11 +1,12 @@
-#!/usr/bin/env perl
-
 package Produit;
+
 use strict;
+
 use Modele;
 use Connexion;
 use Categorie;
 
+# Nom de la table en BDD
 our $tableName = 'Produit';
 
 # Constructeur unique
@@ -52,7 +53,6 @@ sub add {
 # Vérifie le ou les produit(s)
 sub check {
     my ($this) = @_;
-    if ($this->{produits} == undef) {
 	my %cats = Categorie->getCategoriesIds();
 	my $catok = 0;
 	foreach my $cat (%cats) {
@@ -61,25 +61,7 @@ sub check {
 		last;
 	    }
 	}
-	if (length($this->{nom}) < 3 or length($this->{nom}) > 50) {
-	    return (0, 'Taille du nom incorrecte');
-	} elsif (length($this->{desc}) < 3 or length($this->{desc}) > 255) {
-	    return (0, 'Taille de la description incorrecte');
-	} elsif (!$catok) {
-	    return (0, 'La catégorie n\'éxiste pas');
-	} elsif ($this->{prix} !~ m/\d+,\d\d/) {
-	    return (0, 'Prix invalide');		
-	} elsif (length($this->{photo}) < 1) {
-	    return (0, 'Photo invalide');
-	} elsif ($this->{quantite} !~ m/-?\d+/) {
-	    return (0, 'Quantotée invalide');
-	} else {
-	    return (-1, 'Produit valide');
-	}
-    }
-    else {
-	# TODO vérifier une liste de produits
-    }
+	return  (length($this->{nom}) > 3 and length($this->{nom}) > 50) and (length($this->{desc}) > 3) and $catok and ($this->{prix} =~ m/\d+,\d{2}/) and (length($this->{photo}) > 1) and ($this->{quantite} =~ m/-?\d+/);
 }
 
 # Représentation textuelle
@@ -117,14 +99,13 @@ sub store {
     my ($this) = @_;
     if ($this->{produits} == undef) {
 	my $dbh = Connexion->getDBH();
-	my $sf_tn = $dbh->quote_identifier($tableName);
 	my $sth;
 	if ($this->{id} eq undef) { # Création
 	    $this->{id} = Modele->nextId($tableName);
-	    $sth = $dbh->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?,?,?,?)");
+	    $sth = $dbh->prepare("INSERT INTO $tableName VALUES (?,?,?,?,?,?,?)");
 	    $sth->execute($this->{id}, $this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo}, $this->{quantite});
 	} else { # Modification
-	    $sth = $dbh->prepare("UPDATE $sf_tn SET Nom=?, Desc=?, Cat=?, Prix=?, Photo=?, Quantite=? WHERE Id=?");
+	    $sth = $dbh->prepare("UPDATE $tableName SET Nom=?, Desc=?, Cat=?, Prix=?, Photo=?, Quantite=? WHERE Id=?");
 	    $sth->execute($this->{nom}, $this->{desc}, $this->{cat}, $this->{prix}, $this->{photo}, $this->{quantite}, $this->{id});
 	}
 	$sth->finish();
@@ -138,19 +119,12 @@ sub store {
 #   Methodes de classe
 ###
 
-# Charge les produits de la catégorie cat
-sub load_from_cat {
-    my ($class, $cat) = @_;
+# Charge les produits depuis une requète SQL
+sub getFromSQL {
+    my ($class, $sql) = @_;
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
-    my $sth;
-    if ($cat =~ /^\d+$/) {
-	$sth = $dbh->prepare("SELECT * FROM $sf_tn WHERE Cat=?");
-    } else {
-	$cat =~ s/(\w)/\u\L$1/; #Met en majuscule la première lettre
-	$sth = $dbh->prepare("SELECT Produit.Id, Produit.Nom, Produit.Desc, Produit.cat, Produit.Prix, Produit.Photo, Produit.Quantite FROM Produit, Categorie WHERE Produit.Cat = Categorie.Id and Categorie.Nom = ?");
-    }
-    $sth->execute($cat);
+    my $sth = $dbh->prepare($sql);
+    $sth->execute();
     my $prods = Produit->many();
     my $row;
     while ($row = $sth->fetchrow_arrayref()) {
@@ -161,6 +135,31 @@ sub load_from_cat {
     $sth->finish();
     $dbh->commit();
     return $prods;
+}
+
+# Charge les produits de la catégorie
+sub load_from_cat {
+    my ($class, $cat) = @_;
+    if ($cat =~ /^\d+$/) {
+	my $sfCat = Connexion->getDBH()->quote_identifier($cat);
+	return Produit->getFromSQL("SELECT * FROM $tableName WHERE Cat=$sfCat");
+    } else {
+	$cat =~ s/(\w)/\u\L$1/; #Met en majuscule la première lettre
+	my $sfCat = Connexion->getDBH()->quote_identifier($cat);
+    return Produit->getFromSQL("SELECT Produit.Id, Produit.Nom, Produit.Desc, Produit.cat, Produit.Prix, Produit.Photo, Produit.Quantite FROM Produit, Categorie WHERE Produit.Cat = Categorie.Id and Categorie.Nom = $sfCat");
+    }
+}
+
+# Charge tous les produits
+sub get_produits {
+    my ($class) = @_;
+    return Produit->getFromSQL("SELECT * FROM $tableName");
+}
+
+# Charge les produits en rupture de stock
+sub get_produits_rupture {
+    my ($class) = @_;
+    return Produit->getFromSQL("SELECT * FROM $tableName WHERE Quantite < 1");
 }
 
 # Supprime le produit de la BDD

@@ -1,13 +1,16 @@
-#!/usr/bin/env perl
-
 package Client;
+
 use strict;
+
 use Modele;
 use Individu;
 use Commande;
 use Connexion;
+
+# Hérite de Individu
 our @ISA = ("Individu");
 
+# Nom de la table en BDD
 our $tableName = 'Client';
 
 # Constructeur unique
@@ -86,24 +89,31 @@ sub load {
 sub store {
     my ($this) = @_;
     if ($this->{clients} == undef) {
+	if (!$this->check()) { return 0; }
 	my $dbh = Connexion->getDBH();
-	my $sf_tn = $dbh->quote_identifier($tableName);
 	my $sth;
 	if ($this->{id} eq undef) { # Création
 	    $this->Individu::store();
-	    $sth = $dbh->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?)");
+	    $sth = $dbh->prepare("INSERT INTO $tableName VALUES (?,?,?,?)");
 	    $sth->execute($this->{id}, $this->{adresse}, $this->{datenaiss}, $this->{civi});
 	} else { # Modification
 	    $this->Individu::store();
-	    $sth = $dbh->prepare("UPDATE $sf_tn SET Adresse=?, DateNaiss=?, Civi=? WHERE Id=?");
+	    $sth = $dbh->prepare("UPDATE $tableName SET Adresse=?, DateNaiss=?, Civi=? WHERE Id=?");
 	    $sth->execute($this->{adresse}, $this->{datenaiss}, $this->{civi}, $this->{id});
 	}
 	$sth->finish();
 	$dbh->commit();
+	return 1;
     } else {
 	# Pas encore implémenté !
 	return -1;
     }
+}
+
+# Vérifie le client
+sub check {
+    my ($this) = @_;
+    return (length $this->{adresse} >= 5) and (length $this->{adresse} <= 255);
 }
 
 
@@ -123,8 +133,7 @@ sub remove {
 sub createTable {
     Modele->dropTable($tableName);
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
-    my $sth = $dbh->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Adresse text NOT NULL, DateNaiss date NOT NULL, Civi text NOT NULL)");
+    my $sth = $dbh->prepare("CREATE TABLE $tableName (Id integer PRIMARY KEY, Adresse text NOT NULL, DateNaiss date NOT NULL, Civi text NOT NULL)");
     $sth->execute();
     $sth->finish();
     $dbh->commit();

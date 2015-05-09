@@ -1,10 +1,11 @@
-#!/usr/bin/env perl
-
 package Commande;
+
 use strict;
+
 use Modele;
 use Connexion;
 
+# Nom de la table en BDD
 our $tableName = 'Commande';
 
 # Constructeur unique
@@ -77,15 +78,15 @@ sub load {
 sub store {
     my ($this) = @_;
     if ($this->{commandes} == undef) {
+	if (!$this->check()) { return 0;}
 	my $dbh = Connexion->getDBH();
-	my $sf_tn = $dbh->quote_identifier($tableName);
 	my $sth;
 	if ($this->{id} eq undef) { # Création
 	    $this->{id} = Modele->nextId($tableName);
-	    $sth = $dbh->prepare("INSERT INTO $sf_tn VALUES (?,?,?,?,?)");
+	    $sth = $dbh->prepare("INSERT INTO $tableName VALUES (?,?,?,?,?)");
 	    $sth->execute($this->{id}, $this->{client}, $this->{dateC}, $this->{dateE}, $this->{dateP});
 	} else { # Modification
-	    $sth = $dbh->prepare("UPDATE $sf_tn SET Client=?, DateC=?, DateE=?, DateP=? WHERE Id=?");
+	    $sth = $dbh->prepare("UPDATE $tableName SET Client=?, DateC=?, DateE=?, DateP=? WHERE Id=?");
 	    $sth->execute($this->{client}, $this->{dateC}, $this->{dateE}, $this->{dateP}, $this->{id});
 	}
 	$sth->finish();
@@ -93,6 +94,18 @@ sub store {
     } else {
 	return -1;
     }
+}
+
+# Vérifie la commande
+sub check {
+    my ($this) = @_;
+    return ($this->{client} =~ m/\d+/) and ($this->{dateC} eq '' or isDate($this->{dateC})) and ($this->{dateE} eq '' or isDate($this->{dateE})) and ($this->{dateP} eq '' or isDate($this->{dateP}));
+}
+
+# Vérifie une date
+sub isDate {
+    my ($date) = @_;
+    return $date =~ m/\d{4}-\d{2}-\d{2}/;
 }
 
 ###
@@ -110,8 +123,7 @@ sub remove {
 sub remove_from_client {
     my ($class, $id_client) = @_;
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
-    my $sth = $dbh->prepare("DELETE FROM $sf_tn WHERE Client=?");
+    my $sth = $dbh->prepare("DELETE FROM $tableName WHERE Client=?");
     $sth->execute($id_client);
     $sth->finish();
     $dbh->commit();
@@ -119,10 +131,27 @@ sub remove_from_client {
 
 # Récupère toutes les commandes non traités
 sub get_no_spray {
-    my ($class) = @_;
+    my ($this) = @_;
+    return $this->getFromSQL("SELECT * FROM $tableName WHERE DateE = ''");
+}
+
+# Récupère toutes les commandes envoyé
+sub get_send {
+    my ($this) = @_;
+    return $this->getFromSQL("SELECT * FROM $tableName WHERE DateE <> ''");
+}
+
+# Récupère toutes les commandes
+sub get_commandes {
+    my ($this) = @_;
+    return $this->getFromSQL("SELECT * FROM $tableName");
+}
+
+# Récupère les commandes a partir d'une requète
+sub getFromSQL {
+    my ($class, $sql) = @_;
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
-    my $sth = $dbh->prepare("SELECT * FROM Commande WHERE DateE IS NULL");
+    my $sth = $dbh->prepare($sql);
     $sth->execute();
     my $coms = Commande->many();
     my $row;
@@ -140,8 +169,7 @@ sub get_no_spray {
 sub createTable {
     Modele->dropTable($tableName);
     my $dbh = Connexion->getDBH();
-    my $sf_tn = $dbh->quote_identifier($tableName);
-    my $sth = $dbh->prepare("CREATE TABLE $sf_tn (Id integer PRIMARY KEY, Client integer NOT NULL, DateC date NOT NULL, DateE date, DateP date, FOREIGN KEY(Client) REFERENCES Client(Id))");
+    my $sth = $dbh->prepare("CREATE TABLE $tableName (Id integer PRIMARY KEY, Client integer NOT NULL, DateC date NOT NULL, DateE date, DateP date, FOREIGN KEY(Client) REFERENCES Client(Id))");
     $sth->execute();
     $sth->finish();
     $dbh->commit();
