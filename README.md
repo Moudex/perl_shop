@@ -3,7 +3,7 @@ Boutique en ligne avec gestion des stocks entièrement écrite en langage Perl.
 
 ## Installation
 
-**Pour des raisons de sécurité, il est déconseillé de mettre les sources dans un système de fichier accessible depuis le web. En cas de mauvaise configuration de votre serveur web il pourraient êtres visibles publiquement.**
+**Pour des raisons de sécurité, il est déconseillé de mettre les sources dans un système de fichier accessible depuis le web. En cas de mauvaise configuration de votre serveur web ils pourraient êtres visibles publiquement.**
 
 ###Téléchargez les sources :
 
