@@ -61,7 +61,8 @@ sub check {
 		last;
 	    }
 	}
-	return  (length($this->{nom}) > 3 and length($this->{nom}) > 50) and (length($this->{desc}) > 3) and $catok and ($this->{prix} =~ m/\d+,\d{2}/) and (length($this->{photo}) > 1) and ($this->{quantite} =~ m/-?\d+/);
+	$this->{prix} =~ s/\./,/;
+	return  (length($this->{nom}) > 3 and length($this->{nom}) < 80) and (length($this->{desc}) > 3) and $catok and ($this->{prix} =~ m/\d+,\d{2}/) and (length($this->{photo}) > 1) and ($this->{quantite} =~ m/-?\d+/);
 }
 
 # Représentation textuelle
@@ -98,6 +99,7 @@ sub load {
 sub store {
     my ($this) = @_;
     if ($this->{produits} == undef) {
+	if (!$this->check()) {return 0;}
 	my $dbh = Connexion->getDBH();
 	my $sth;
 	if ($this->{id} eq undef) { # Création
@@ -110,6 +112,7 @@ sub store {
 	}
 	$sth->finish();
 	$dbh->commit();
+	return 1;
     } else {
 	return -1;
     }

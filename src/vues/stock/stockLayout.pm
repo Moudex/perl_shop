@@ -31,6 +31,8 @@ sub make {
     $out .= $t.$t.$t.$t.'<li class="pure-menu-item"><a href="'.vue->path('stock/produit/rupture').'" class="pure-menu-link">En rupture</a></li>'.$n;
     $out .= $t.$t.$t.$t.'<li class="pure-menu-item"><a href="'.vue->path('stock/produit').'" class="pure-menu-link">Liste</a></li>'.$n;
     $out .= $t.$t.$t.$t.'<li class="pure-menu-item"><a href="'.vue->path('stock/produit/new').'" class="pure-menu-link">Nouveau</a></li>'.$n;
+    $out .= $t.$t.$t.$t.'<li class="pure-menu-heading">Statistiques</li>'.$n;
+    $out .= $t.$t.$t.$t.'<li class="pure-menu-item">Ventes du jour: '.$args{vtoday}.'</li>'.$n;
     $out .= $t.$t.$t.'</ul>'.$n;
     $out .= $t.$t.'</div>'.$n;
     $out .= $t.'</div>'.$n;

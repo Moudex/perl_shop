@@ -1,0 +1,16 @@
+/*
+ * Barre de navigation
+ */
+
+#nav{
+    background-color: #191818;
+    height: 100%;
+}
+
+#nav .pure-menu-heading {
+    color: white;
+}
+
+#stockcontent > div {
+    padding: 20px;
+}

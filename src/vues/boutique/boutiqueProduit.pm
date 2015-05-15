@@ -30,7 +30,7 @@ sub make {
     $out .= $t.$t.$t.$t.'<li><h2>'.$produit->{prix}.'€</h2></li>'.$n;
     if ($produit->{quantite} > 0) {
 	$out .= $t.$t.$t.$t.'<li><span style="text-color:green;">Disponible - Livraison sous 48H</span>'.$n;
-	$out .= $t.$t.$t.$t.$t.'<form id="commande" name="commande" method="POST" action="'.vue->path('panier/add/'.$produit->{id}).'">Quantité : <input type="text" id="qte" name="qte" value="1" size="3"><input type="submit" value="Ajouter au panier"></form></li>'.$n;
+	$out .= $t.$t.$t.$t.$t.'<form id="commande" name="commande" class="agauche" method="POST" action="'.vue->path('panier/add/'.$produit->{id}).'">Quantité : <input type="text" id="qte" name="qte" value="1" size="3"><input type="submit" value="Ajouter au panier"></form></li>'.$n;
     } else {
 	$out .= $t.$t.$t.$t.'<li><span style="text-color:red;">Indisponible pour le moment</span></li>'.$n;
     }

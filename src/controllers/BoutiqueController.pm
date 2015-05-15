@@ -67,6 +67,7 @@ sub categorieAction {
     my $content = boutiquePListe->make(
 	'produits' => Produit->load_from_cat($cat)
     );
+    $this->{css} .= '<link rel="stylesheet" href="http://dup1.fr/imprev.css">';
     $this->render($content);
 }
 

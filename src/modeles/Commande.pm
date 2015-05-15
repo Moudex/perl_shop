@@ -165,6 +165,17 @@ sub getFromSQL {
     return $coms;
 }
 
+# Nombre de vente du jour
+sub getNbVenteToday {
+    my ($class) = @_;
+    my $dbh = Connexion->getDBH();
+    my $sth = $dbh->prepare("SELECT COUNT(*) FROM $tableName WHERE DateC = date('now')");
+    $sth->execute();
+    my $res = $sth->fetchrow_arrayref();
+    $sth->finish(); $dbh->commit();
+    return @$res[0];
+}
+
 # Crée la table
 sub createTable {
     Modele->dropTable($tableName);

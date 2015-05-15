@@ -1,0 +1,13 @@
+table a img.off{
+        display:none;
+}
+@media only screen and (min-width:1300px){
+    table a:hover img.off{
+    display:inline;
+    width:200px;
+    height:200px;
+    position: fixed;
+    left: 0px;
+    top: 100px;	
+}
+}

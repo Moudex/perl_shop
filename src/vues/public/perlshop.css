@@ -1,23 +1,63 @@
-header, footer{ background-color:rgb(238,238,238); padding: 10px;}
-		
-		footer{text-align: center}
-.gros{font-size: 200%;}		
+#footer{
+    background-color: rgb(238,238,238);
+    padding: 10px;
+    text-align: center;
+    font-size : 0.7em;
+}
 
-.panier{ border-style: solid;
-		border-width: 1px;
-		border-radius: 4px;}
-		}
-table td:first-child, table td:nth-child(3){text-align: right;}
-		table td:last-child{text-align: center}.right{float: right;}
+.adroite {
+    text-align: right;
+}
+
+.agauche {
+    text-align: left;
+}
 
 
-	
-	.pure-mosa > div{
-			box-sizing: border-box;
-			padding: 0.3em;	
-			}
-.custom-wrapper {
-    background-color:  rgb(49, 49, 49);
+/*
+ * FORMULAIRES
+ */
+
+form {
+    font-weight: bold;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 200px;
+}
+
+label {
+    color: #555;
+    display: block;
+    text-align: left;
+    margin-top: 20px;
+}
+
+
+input[type="text"], input[type="email"], textarea, select{
+    width: 80%;
+    display: block;
+    margin-top: 5px;
+}
+
+input[type="radio"] {
+    display: inline;
+    text-align: left;
+    padding-left: 10%;
+    width: auto;
+}
+
+input[type="button"] {
+    margin-top: 20px;
+}
+
+textarea {
+    height: 200px;
+}
+
+/* BARRE MENU */
+.barrenav {
+    background-color: rgb(238,238,238);
     -webkit-font-smoothing: antialiased;
     height: 2.1em;
     overflow: hidden;
@@ -25,14 +65,12 @@ table td:first-child, table td:nth-child(3){text-align: right;}
     -moz-transition: height 0.5s;
     -ms-transition: height 0.5s;
     transition: height 0.5s;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
 
-.custom-wrapper.open {
-    height: 14em;
-}
-
-.custom-menu-3 {
-    text-align: right;
+.barrenav.open {
+    height: 18em;
 }
 
 .custom-toggle {
@@ -52,8 +90,8 @@ table td:first-child, table td:nth-child(3){text-align: right;}
     height: 2px;
     border-radius: 100px;
     position: absolute;
-    top: 145px;
-    right: 15px;
+    top: 18px;
+    right: 7px;
     -webkit-transition: all 0.5s;
     -moz-transition: all 0.5s;
     -ms-transition: all 0.5s;
@@ -81,14 +119,20 @@ table td:first-child, table td:nth-child(3){text-align: right;}
     transform: rotate(-45deg);
 }
 
+.pure-menu-link {
+    padding: 5px;
+}
+
+.pure-menu-heading {
+    font-weight: bold;
+}
+
 @media (max-width: 47.999em) {
+.custom-toggle {
+    display: block;
+}
+}
 
-    .custom-menu-3 {
-        text-align: left;
-    }
-
-    .custom-toggle {
-        display: block;
-    }
-
+* {
+    letter-spacing: normal;
 }

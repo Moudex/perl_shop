@@ -1,0 +1,58 @@
+#mosa > a {
+    box-sizing: border-box;
+    padding: 0.3em;
+}
+
+#qte {
+    width: 4em;
+}
+
+#commande input{
+    display: inline;
+}
+
+#commande label {
+    padding-left: 10%;
+}
+
+.photo-box aside div span{
+    margin-left: 57%;
+    position: right;
+    font-size: x-large;
+    font-family: Naughty Cartoons, Trebuchet MS;
+    color: white;
+    width: 120px;
+    background: #459436;
+    line-height: 50px;
+    text-align: center;
+    border-radius: 100px;
+}
+.photo-box aside span {
+    padding: 5px;
+}
+
+.photo-box img {
+    width: auto;
+    max-height: 100%;
+}
+
+.text-box {
+    color: #8EC547;
+}
+
+table {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+@media screen and (min-width: 1150px) {
+    .photo-box aside span div {
+	margin-left: 70%;
+    }
+}
+
+#page-panier {
+    text-align: center;
+}

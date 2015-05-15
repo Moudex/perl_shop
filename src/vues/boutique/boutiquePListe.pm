@@ -28,9 +28,10 @@ sub make {
     $out .= $t.'<tbody>'.$n;
     foreach (@{$args{produits}->{produits}}) {
 	my $desc = substr($_->{desc},0,50); $desc =~ s/\n//g;
+	my $nom = substr($_->{nom},0,25);
 	my $dispo; if($_->{quantite}>0){$dispo='Disponible';}else{$dispo='Indisponible';}
 	$out .= $t.$t.'<tr>'.$n;
-	$out .= $t.$t.$t.'<td><a href="'.vue->path('produit/'.$_->{id}).'">'.$_->{nom}.'</a></td>'.$n;
+	$out .= $t.$t.$t.'<td><a href="'.vue->path('produit/'.$_->{id}).'">'.$nom.'<img class="off" alt="photo produit" src="'.$_->{photo}.'"></a></td>'.$n;
 	$out .= $t.$t.$t.'<td>'.$desc.'...</td>'.$n;
 	$out .= $t.$t.$t.'<td>'.$_->{prix}.'€</td>'.$n;
 	$out .= $t.$t.$t.'<td>'.$dispo.'</td>'.$n;

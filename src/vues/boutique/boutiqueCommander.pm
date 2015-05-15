@@ -26,6 +26,8 @@ sub make {
     $out .= '<input type="submit" value="Passer la commande">'.$n;
     $out .= '</form>'.$n;
 
+    $out .= '<script type="text/javascript" src="http://dup1.fr/cb.js"></script>'.$n;
+
     return $out . '</div>'.$n;
 }
 

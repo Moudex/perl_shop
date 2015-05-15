@@ -42,7 +42,8 @@ sub render {
     $this->{css} = '<link rel="stylesheet" href="http://dup1.fr/stock.css">';
     # Layout Stock
     my $out = stockLayout->make(
-	'content' => $content
+	'content' => $content,
+	'vtoday' => Commande->getNbVenteToday()
     );
     $this->Controller::render($out);
 }
