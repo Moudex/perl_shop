@@ -39,7 +39,7 @@ sub new {
 # Méthode de rendu
 sub render {
     my ($this, $content) = @_;
-    $this->{css} = '<link rel="stylesheet" href="http://'.$ENV{'HTTP_HOST'}.'/stock.css">';
+    $this->{css} = '<link rel="stylesheet" href="http://dup1.fr/stock.css">';
     # Layout Stock
     my $out = stockLayout->make(
 	'content' => $content
@@ -51,7 +51,14 @@ sub render {
 # Subroute /stock/
 sub indexAction {
     my ($this) = @_;
-    my $content = '<p>Coucou !</p>';
+    my $content = stockCommandes->make(
+	'titre' => 'Commandes non-traitées',
+	'commandes' => Commande->get_no_spray()
+    );
+    $content .= stockProduits->make(
+	'titre' => 'Produits en rupture',
+	'produits' => Produit->get_produits_rupture()
+    );
     $this->render($content);
 }
 

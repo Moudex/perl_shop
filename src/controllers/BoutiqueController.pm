@@ -42,7 +42,7 @@ sub render {
     my ($this, $content) = @_;
     # Insertion du contenu
     # Appel de la méthode render générale
-    $this->{css} = '<link rel="stylesheet" href="http://'.$ENV{'HTTP_HOST'}.'/boutique.css">';
+    $this->{css} .= '<link rel="stylesheet" href="http://dup1.fr/boutique.css">';
     #my $out = boutiqueLayout->make(@cats);
     $this->Controller::render($content);
 }
@@ -77,6 +77,7 @@ sub produitAction {
     my $content = boutiqueProduit->make(
 	'produit' => Produit->new($prodId)
     );
+    $this->{css} .= '<link rel="stylesheet" href="http://dup1.fr/overlay.css">';
     $this->render($content);
 }
 

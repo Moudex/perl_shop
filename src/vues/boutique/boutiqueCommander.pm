@@ -10,20 +10,23 @@ use CGI qw/:standard/;
 sub make {
     my ($class) = @_;
     my $out = '<div>';
+    my $n = "\n";
 
     # Formulaire
-    $out .= '<form name="commande" class="pure-form pure-form-stacked" method="POST" action="'.vue->path('commander').'"><fieldset>';
-    $out .= '<label for="nom">Nom : </label> <input type="text" name="nom" placeholder="Nom">';
-    $out .= '<label for="prenom">Prénom : </label> <input type="text" name="prenom" placeholder="Prénom">';
-    $out .= '<label for="civilite">Civilité : </label>';
-    $out .= 'M.<input name="civilite" type="radio" value="M." checked>';
-    $out .= 'Mme<input name="civilite" type="radio" value="Mme">';
-    $out .= '<label for="email">Couriel : </label> <input type="email" name="email" placeholder="Couriel">';
-    $out .= '<label for="adresse">Adresse : </label> <textarea name="adresse"></textarea>';
-    $out .= '<input type="submit">';
-    $out .= '</fieldset></form>';
+    $out .= '<form id="commande" name="commande" class="pure-form" method="POST" action="'.vue->path('commander').'">'.$n;
+    $out .= '<label for="nom">Nom : </label> <input id="nom" type="text" name="nom" placeholder="Nom">'.$n;
+    $out .= '<label for="prenom">Prénom : </label> <input id="prenom" type="text" name="prenom" placeholder="Prénom">'.$n;
+    $out .= '<label for="civilite" class="pure-radio">Civilité : </label>'.$n;
+    $out .= 'M.<input name="civilite" type="radio" value="M." id="civilite" checked>'.$n;
+    $out .= 'Mme<input name="civilite" type="radio" value="Mme" id="civilite" >'.$n;
+    $out .= '<label for="adresse">Adresse : </label> <textarea name="adresse" id="adresse"></textarea>'.$n;
+    $out .= '<label for="email">Couriel : </label> <input type="email" id="email" name="email" placeholder="Couriel">'.$n;
+    $out .= '<label for="ncb">Carte bancaire : </label> <input type="text" id="ncb" name="ncb" placeholder="Numéro">'.$n;
+    $out .= '<br>';
+    $out .= '<input type="submit" value="Passer la commande">'.$n;
+    $out .= '</form>'.$n;
 
-    return $out . '</div>';
+    return $out . '</div>'.$n;
 }
 
 1;

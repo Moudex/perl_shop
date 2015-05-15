@@ -15,8 +15,20 @@ sub make {
     my $out = '<div>'.$n;
 
     $out .= $t.'<h1>'.$args{titre}.'</h1>'.$n;
+    $out .= $t.'<p>Commande : '.$args{commande}->{dateC}.'</p>'.$n;
+    $out .= $t.'<p>Paiement : '.$args{commande}->{dateP}.'</p>'.$n;
+    if ($args{commande}->{dateE} ne undef) {
+	$out .= $t.'<p>Envoi : '.$args{commande}->{dateE}.'</p>'.$n;
+    }
 
-    # détail de la commande
+    # Client
+    $out .= $t.'<h2>Client</h2>'.$n;
+    $out .= $t.$t.'<p>'.$args{client}->{civi}.' '.$args{client}->{nom}.' '.$args{client}->{prenom}.'</p>'.$n;
+    $out .= $t.$t.'<p>'.$args{client}->{email}.'</p>'.$n;
+    $out .= $t.$t.'<p>'.$args{client}->{adresse}.'</p>.'.$n;
+
+    # Produits
+    $out .= $t.'<h2>Produits</h2>'.$n;
     $out .= '<table class="pure-table pure-table-bordered pure-table-striped">'.$n;
     $out .= $t.'<thead><tr>'.$n;
     $out .= $t.$t.'<th>Ref.</th><th>Nom</th><th>Prix U.</th><th>Qté.</th><th>Prix T.</th>'.$n;
@@ -37,13 +49,7 @@ sub make {
     $out .= '</table>'.$n;
 
     $total =~ s/\./,/;
-    $out .= '<p>Total : '.$total.'€</p>'.$n;
-
-    # Commande
-    $out .= '<p>'.$args{commande}->toString().'</p>'.$n;
-
-    # Données du client
-    $out .= '<p>'.$args{client}->toString().'</p>'.$n;
+    $out .= '<h2>Total : '.$total.'€</h2>'.$n;
 
     # afficher si non expédié
     if ($args{commande}->{dateE} eq undef) {

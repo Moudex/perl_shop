@@ -17,15 +17,15 @@ sub make {
     my $t = "\t";
     
     #layout
-    $out .= '<div id="layout">'.$n;
+    $out .= '<div class="pure-g">'.$n;
     
     #nav
-    $out .= $t.'<div id="nav">'.$n;
+    $out .= $t.'<div id="nav" class="pure-u-1 pure-u-md-1-6">'.$n;
     $out .= $t.$t.'<div class="pure-menu">'.$n;
     $out .= $t.$t.$t.'<ul class="pure-menu-list">'.$n;
     $out .= $t.$t.$t.$t.'<li class="pure-menu-heading">Commandes</li>'.$n;
-    $out .= $t.$t.$t.$t.'<li class="pure-menu-item"><a href="'.vue->path('stock/commande/nospray').'" class="pure-menu-link">Non traités</a></li>'.$n;
-    $out .= $t.$t.$t.$t.'<li class="pure-menu-item"><a href="'.vue->path('stock/commande/send').'" class="pure-menu-link">Envoyés</a></li>'.$n;
+    $out .= $t.$t.$t.$t.'<li class="pure-menu-item"><a href="'.vue->path('stock/commande/nospray').'" class="pure-menu-link">Non traitées</a></li>'.$n;
+    $out .= $t.$t.$t.$t.'<li class="pure-menu-item"><a href="'.vue->path('stock/commande/send').'" class="pure-menu-link">Envoyées</a></li>'.$n;
     $out .= $t.$t.$t.$t.'<li class="pure-menu-item"><a href="'.vue->path('stock/commande').'" class="pure-menu-link">Liste</a></li>'.$n;
     $out .= $t.$t.$t.$t.'<li class="pure-menu-heading">Produits</li>'.$n;
     $out .= $t.$t.$t.$t.'<li class="pure-menu-item"><a href="'.vue->path('stock/produit/rupture').'" class="pure-menu-link">En rupture</a></li>'.$n;
@@ -36,7 +36,7 @@ sub make {
     $out .= $t.'</div>'.$n;
     
     #main
-    $out .= $t.'<div id="content">'.$n;
+    $out .= $t.'<div id="stockcontent" class="pure-u-1 pure-u-md-5-6">'.$n;
     $out .= $args{content};
     $out .= $t.'</div>'.$n;
     

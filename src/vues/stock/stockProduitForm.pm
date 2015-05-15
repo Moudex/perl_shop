@@ -9,19 +9,23 @@ use CGI qw/:standard/;
 
 sub make {
     my ($class, %args) = @_;
-    my %cats = %{$args{cats_ref}};
+    my %cats = %{$args{cats}};
     my $prod = $args{produit};
     my $n = "\n";
     my $t ="\t";
     my $out = '<div class="pure-g">'.$n;
 
     # Image
+    if ($prod->{photo} ne undef) {
     $out .= $t.'<div class="photo-box-u-1 u-med-1-2">'.$n;
     $out .= $t.$t.'<img class="pure-img" src="'.$prod->{photo}.'" alt="photo du produit" />'.$n;
-    $out .= $t.'</div>'.$n;
+    $out .= $t.'</div>'.$n; 
 
     # Formulaire
-    $out .= $t.'<div class="text-box-u-1 u-med-1-2">'.$n;
+    $out .= $t.'<div class="pure-u-1 u-med-1-2">'.$n;
+} else {
+    $out .= $t.'<div class="pure-u-1">'.$n;
+}
     if ($prod->{id} eq undef) {
 	$out .= $t.$t.'<h1>Nouveau produit</h1>'.$n;
     } else {
@@ -36,13 +40,13 @@ sub make {
 	}
 
 	# Nom
-	$out .= $t.$t.$t.'<label for="nom">Nom : </label> <input type="text" name="nom" value="'.$prod->{nom}.'">'.$n;
+	$out .= $t.$t.$t.'<label for="nom">Nom : </label> <input type="text" name="nom" id="nom" value="'.$prod->{nom}.'">'.$n;
 
 	# Description
-	$out .= $t.$t.$t.'<label for="desc">Description : </label> <textarea name="desc">'.$prod->{desc}.'</textarea>'.$n;
+	$out .= $t.$t.$t.'<label for="desc">Description : </label> <textarea name="desc" id="desc">'.$prod->{desc}.'</textarea>'.$n;
 
 	# Catégorie
-	$out .= $t.$t.$t.'<label for="cat">Catégorie : </label> <select name="cat">';
+	$out .= $t.$t.$t.'<label for="cat">Catégorie : </label> <select id="cat" name="cat">';
 	foreach my $key (keys %cats) {
 	    if ($cats{$key} == $prod->{cat}){
 		$out .= '<option value="'.$cats{$key}.'" selected="selected">'.$key.'</option>';
@@ -53,15 +57,15 @@ sub make {
 	$out .= '</select>'.$n;
 
 	# Prix
-	$out .= $t.$t.$t.'<label for="prix">Prix unitaire : </label> <input type="text" name="prix" value="'.$prod->{prix}.'">'.$n;
+	$out .= $t.$t.$t.'<label for="prix">Prix unitaire : </label> <input type="text" id="prix" name="prix" value="'.$prod->{prix}.'">'.$n;
 
 	# Photo
-	$out .= $t.$t.$t.'<label for="photo">Photo (url) : </label> <input type="text" name="photo" value="'.$prod->{photo}.'">'.$n;
+	$out .= $t.$t.$t.'<label for="photo">Photo (url) : </label> <input type="text" name="photo" id="photo" value="'.$prod->{photo}.'">'.$n;
 
 	# Quantitée
-	$out .= $t.$t.$t.'<label for="qte">Quantitée : </label> <input type="text" name="qte" value="'.$prod->{quantite}.'">'.$n;
+	$out .= $t.$t.$t.'<label for="qte">Quantitée : </label> <input type="text" name="qte" id="qte" value="'.$prod->{quantite}.'">'.$n;
 
-	$out .= $t.$t.$t.'<input type="submit">'.$n;
+	$out .= $t.$t.$t.'<input type="submit" value="Envoyer">'.$n;
 	$out .= $t.$t.'</form>';
 	$out .= $t.'</div>'.$n;
 

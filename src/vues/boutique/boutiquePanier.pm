@@ -13,7 +13,7 @@ sub make {
     my ($class, %args) = @_;
     my $n = "\n";
     my $t = "\t";
-    my $out = '<div>'.$n;
+    my $out = '<div id="page-panier">'.$n;
 
     $out .= $t.'<h1>Mon panier</h1>'.$n;
 
@@ -40,9 +40,9 @@ sub make {
     $out .= '</table>'.$n;
 
     $total =~ s/\./,/;
-    $out .= '<p>Total : '.$total.'€</p>'.$n;
+    $out .= '<h3>Total : '.$total.'€</h3>'.$n;
 
-    $out .= '<a href="'.vue->path('commander').'">Passer la commande</a>'.$n;
+    $out .= '<h2><a class="pure-button" href="'.vue->path('commander').'">Passer la commande</a></h2>'.$n;
 
     $out .= '</div>'.$n;
     return $out;

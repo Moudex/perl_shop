@@ -26,12 +26,12 @@ sub make {
     $out .= $t.'</div>'.$n;
 
     foreach (@{$produits->{produits}}) {
-	$out .= $t.'<div class="photo-box u-1 u-med-1-2 u-lrg-1-3">'.$n;
-	$out .= $t.$t.'<a href="'.vue->path('produit/'.$_->{id}).'">'.$n;
+	#$out .= $t.'<div class="photo-box u-1 u-med-1-2 u-lrg-1-3">'.$n;
+	$out .= $t.$t.'<a class="photo-box u-1 u-med-1-2 u-lrg-1-3" href="'.vue->path('produit/'.$_->{id}).'">'.$n;
 	$out .= $t.$t.$t.'<img src="'.$_->{photo}.'" alt="'.$_->{nom}.'">'.$n;
+	$out .= $t.$t.'<aside class="photo-box-caption"><div><span>'.$_->{prix}.'€</span></div></aside>'.$n;
 	$out .= $t.$t.'</a>'.$n;
-	$out .= $t.$t.'<aside class="photo-box-caption"><span><div>'.$_->{prix}.'€</div></span></aside>'.$n;
-	$out .= $t.'</div>'.$n;
+	#$out .= $t.'</div>'.$n;
     }
 
     $out .= '</div>'.$n;

@@ -47,7 +47,9 @@ sub redirect {
 sub notFound {
     my ($this) = @_;
     print $this->{cgi}->header(-type=>'text/html', -charset=>'utf-8', -status=>'404 Not Found');
-    print layout->make('<h2>Page introuvable !</h2>');
+    print layout->make(
+	'content' => '<h1>Page introuvable !</h1>'
+    );
 }
 
 # Génère les URL
