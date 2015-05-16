@@ -5,6 +5,15 @@ Boutique en ligne avec gestion des stocks entièrement écrite en langage Perl.
 
 **Pour des raisons de sécurité, il est déconseillé de mettre les sources dans une arborescence de fichier accessible depuis le web. En cas de mauvaise configuration de votre serveur web, elles pourraient êtres visibles publiquement.**
 
+###Dépendances :
+Ce projet utilise perl et sqlite3 pour la base de donnée. Il faut également installer les modules Perl DBI et DBD::SQLite.
+```
+# apt-get install sqlite3 perl
+# perl -MCPAN -e shell
+cpan> install DBI
+cpan[2]> install DBD::SQLite
+```
+
 ###Téléchargez les sources :
 
 ```
